@@ -11,3 +11,4 @@ OLD/
 examples/*.jl
 examples/*.run
 benchmarks/*.jl
+lib*/*.jl
