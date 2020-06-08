@@ -8,12 +8,15 @@
 module C2J.Options
  where
 
+import FilePath          ( takeFileName )
 import GetOpt
-import ReadNumeric      ( readNat )
-import System           ( exitWith )
+import ReadNumeric       ( readNat )
+import System            ( exitWith )
 
 import ICurry.Types
-import System.CurryPath ( stripCurrySuffix )
+import System.CurryPath  ( stripCurrySuffix )
+
+import C2J.PackageConfig ( packageExecutable )
 
 ------------------------------------------------------------------------------
 --- The various run-time systems of the compiler.
@@ -111,7 +114,10 @@ processOptions banner argv = do
 
 -- Help text
 usageText :: String
-usageText = usageInfo ("Usage: curry2jl [options] <module name>\n") options
+usageText =
+  usageInfo ("Usage: " ++ prog ++ " [options] <module name>\n") options
+ where
+  prog = takeFileName packageExecutable
 
 -- Definition of actual command line options.
 options :: [OptDescr (Options -> Options)]

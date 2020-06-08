@@ -16,6 +16,19 @@ To install the compiler and pre-compile the system libraries
 the compiler as executable `$HOME/.cpm/c2j`.
 
 
+Usage
+-----
+
+To compile a Curry module `Mod` into a Julia program, run
+
+    > c2j Mod
+
+To compile a Curry module `Mod` and execute the function `main`
+(an operation without arguments), run
+
+    > c2j -x Mod
+
+
 Options
 -------
 
@@ -47,6 +60,10 @@ Option `--time`:
     argument `n` to this option. In this case, the main function
     will be executed `n` times after its first execution and the
     average execution time will be printed.
+
+To see a list of all options, execute
+
+    > c2j --help
 
 
 Stand-alone execution
