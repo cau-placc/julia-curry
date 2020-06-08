@@ -1,0 +1,27 @@
+{
+    "name": "curry2julia",
+    "version": "0.0.1",
+    "author": "Michael Hanus <mh@informatik.uni-kiel.de>",
+    "synopsis": "A compiler from Curry programs into Julia programs",
+    "category": [ "Programming" ],
+    "license": "BSD-3-Clause",
+    "licenseFile": "LICENSE",
+    "dependencies": {
+        "base"      : ">= 1.0.0, < 2.0.0",
+        "currypath" : ">= 0.0.1",
+        "execpath"  : ">= 0.0.1",
+        "julia"     : ">= 0.0.1",
+        "icurry"    : ">= 3.0.0",
+        "wl-pprint" : ">= 0.0.1"
+    },
+    "compilerCompatibility": {
+        "pakcs": ">= 2.0.0, < 3.0.0",
+        "kics2": ">= 2.0.0, < 3.0.0"
+    },
+    "exportedModules": [ "C2J.Compiler", "C2J.Options" ],
+    "configModule": "C2J.PackageConfig",
+    "executable": {
+        "name"   : "c2j",
+        "main"   : "Main"
+    }
+}

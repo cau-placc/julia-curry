@@ -1,0 +1,13 @@
+*~
+.cpm
+.curry
+*.aux
+*.log
+*.pdf
+*.synctex.gz
+*.toc
+src/C2J/PackageConfig.curry
+OLD/
+examples/*.jl
+examples/*.run
+benchmarks/*.jl

@@ -1,0 +1,478 @@
+##############################################################################
+# Implementation of Prelude.failed
+
+function eval_failed(root :: Node)
+  root.tag = 3
+end
+
+##############################################################################
+# Implementation of Prelude.cond
+
+function eval_cond(root :: Node)
+  root.fcode = rew_cond
+  root.value = 1
+end
+
+function rew_cond(root :: Node)
+  x1 = root.args[1]
+  x2 = root.args[2]
+  if (x1.tag == 10)
+    root.tag = 3
+  else
+    if (x1.tag == 11)
+      root.tag = 1
+      empty!(root.args)
+      push!(root.args, x2)
+    else
+      bindVarNode(x1, Node(11, 0, root.tski, nothing, nothing, [], "True"))
+    end
+  end
+end
+
+##############################################################################
+# Implementation of Prelude.&
+# Here we provide a simple sequential implemention.
+
+function eval__26(root :: Node)
+  root.fcode = rew__26
+  root.value = 1
+end
+
+function rew__26(root :: Node)
+  x1 = root.args[1]
+  if (x1.tag == 10)
+    root.tag = 3
+  else
+    if (x1.tag == 11)
+      root.value = 2
+      root.fcode = rew1__26
+    else
+      error("Prelude.&: free variable occurred!")
+    end
+  end
+end
+
+function rew1__26(root :: Node)
+  x2 = root.args[2]
+  if (x2.tag == 10)
+    root.tag = 3
+  else
+    if (x2.tag == 11)
+      root.tag = 11
+      root.value = 0
+      root.fcode = nothing
+      empty!(root.args)
+      root.symbol = "True"
+    else
+      error("Prelude.&: free variable occurred!")
+    end
+  end
+end
+
+##############################################################################
+# Implementation of Prelude.=:=
+
+function eval__3D_3A_3D(root :: Node)
+  root.fcode = eval1__3D_3A_3D
+  root.value = 1
+end
+
+function eval1__3D_3A_3D(root :: Node)
+  root.fcode = rew__3D_3A_3D
+  root.value = 2
+end
+
+function rew__3D_3A_3D(root :: Node)
+  x1 = root.args[1]
+  x2 = root.args[2]
+  if x1.tag == 4 && x2.tag == 4 # free variables
+    if x1 != x2
+      bindVarNode(x1, x2) # bind variable
+    end
+    setRHS(root, 11, 0, nothing, [], "True")
+  elseif x1.tag == 4
+    bindVariable2Cons(root, x1, x2)
+    root.value = 1 # dereference bound argument and start again
+  elseif x2.tag == 4
+    bindVariable2Cons(root, x2, x1)
+    root.value = 2 # dereference bound argument and start again
+  elseif x1.tag == 5 # integer
+    if x1.value == x2.value
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      root.tag = 3 # fail
+    end
+  elseif x1.tag == 6 # float
+    if x1.symbol == x2.symbol
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      root.tag = 3 # fail
+    end
+  elseif x1.tag == 7 # char
+    if x1.value == x2.value
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      root.tag = 3 # fail
+    end
+  elseif x1.tag >= 10 # constructor
+    if x1.tag != x2.tag
+      root.tag = 3 # fail
+    elseif isempty(x1.args)
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      unifexp = Node(0, 0, root.tski, nothing, eval__3D_3A_3D,
+                     [x1.args[1], x2.args[1]],"=:=")
+      for i in 2:length(x1.args)
+        unifarg = Node(0, 0, root.tski, nothing, eval__3D_3A_3D,
+                       [x1.args[i], x2.args[i]],"=:=")
+        unifexp = Node(0, 1, root.tski, nothing, rew__26,
+                       [unifexp, unifarg],"&")
+      end
+      setForwardNode(root,unifexp)
+    end
+  else
+    error("Prelude.=:= with partial application!")
+  end
+end
+
+function bindVariable2Cons(root :: Node, var :: Node, exp :: Node)
+  if exp.tag < 8 # free variable and literal
+    # bind variable to literal:
+    bindVarNode(var, Node(exp.tag, exp.value, root.tski, nothing, nothing, [],
+                          exp.symbol))
+    setRHS(root, 11, 0, nothing, [], "True")
+  elseif exp.tag >= 10 # bind to constructor applied to free variables
+    fargs = []
+    for i in 1:length(exp.args)
+      push!(fargs,makeFree(root.tski))
+    end
+    bindVarNode(var, Node(exp.tag, exp.value, root.tski, nothing, nothing,
+                          fargs, exp.symbol))
+  else
+    error("Unification with partial application!")
+  end
+end
+
+##############################################################################
+# Implementation of Prelude.=:<= (without non-linearity checking!)
+
+function eval__3D_3A_3C_3D(root :: Node)
+  root.fcode = rew__3D_3A_3C_3D
+  root.value = 1 # evaluate first (functional pattern) argument
+end
+
+function rew__3D_3A_3C_3D(root :: Node)
+  x1 = root.args[1]
+  x2 = root.args[2]
+  if x1.tag == 4 # functional pattern is free variable
+    bindVarNode(x1, x2) # bind variable
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    root.fcode = rew_fpunif
+    root.value = 2 # evaluate second argument to HNF
+  end
+end
+
+function rew_fpunif(root :: Node)
+  x1 = root.args[1] # invariant: x1 is constructor-rooted
+  x2 = root.args[2]
+  if x2.tag == 4
+    bindVariable2Cons(root, x2, x1)
+    root.value = 2 # dereference bound argument and start again
+  elseif x1.tag == 5 # integer
+    if x1.value == x2.value
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      root.tag = 3 # fail
+    end
+  elseif x1.tag == 6 # float
+    if x1.symbol == x2.symbol
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      root.tag = 3 # fail
+    end
+  elseif x1.tag == 7 # char
+    if x1.value == x2.value
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      root.tag = 3 # fail
+    end
+  elseif x1.tag >= 10 # constructor
+    if x1.tag != x2.tag
+      root.tag = 3 # fail
+    elseif isempty(x1.args)
+      setRHS(root, 11, 0, nothing, [], "True")
+    else
+      unifexp = Node(0, 0, root.tski, nothing, eval__3D_3A_3C_3D,
+                     [x1.args[1], x2.args[1]],"=:<=")
+      for i in 2:length(x1.args)
+        unifarg = Node(0, 0, root.tski, nothing, eval__3D_3A_3C_3D,
+                       [x1.args[i], x2.args[i]],"=:<=")
+        unifexp = Node(0, 1, root.tski, nothing, rew__26,
+                       [unifexp, unifarg],"&")
+      end
+      setForwardNode(root,unifexp)
+    end
+  else
+    error("Prelude.=:<= with partial application!")
+  end
+end
+
+
+##############################################################################
+# Implementation of Prelude.apply
+# Note: for partial constructor applications, an additional first
+# argument is inserted to store the index of the constructor
+
+function rew_apply(root :: Node)
+  fn = root.args[1]
+  xn = root.args[2]
+  root.tag    = fn.tag
+  root.symbol = fn.symbol
+  root.value  = fn.value - 1
+  root.fcode  = fn.fcode
+  root.args   = copy(fn.args)
+  push!(root.args, xn)
+  if root.value == 0 # application of last argument
+    if fn.tag == 8 # partial function call
+      root.tag    = 0
+      root.value  = fn.args[1].value
+    else # partial constructor call
+      root.tag    = fn.args[1].tag
+    end
+    popfirst!(root.args) # remove first constructor index argument
+  end
+end
+
+##############################################################################
+# ($!):
+function eval__24_21(root :: Node)
+  root.fcode = rew__24_21
+  root.value = 2
+end
+
+function rew__24_21(root :: Node)
+  root.value = 1
+  root.fcode = rew_apply
+end
+
+# ($!!):
+function eval__24_21_21(root :: Node)
+  x1 = root.args[1]
+  x2 = root.args[2]
+  setRHS(root, 0, 2, rew__24_21_21,
+     [x1, Node(0, 1, root.tski, nothing, rew_nf, [x2], "normalForm")], "\$!!")
+end
+
+function rew__24_21_21(root :: Node)
+  root.value = 1
+  root.fcode = rew_apply
+end
+
+# ($##):
+function eval__24_23_23(root :: Node)
+  x1 = root.args[1]
+  x2 = root.args[2]
+  setRHS(root, 0, 2, rew__24_23_23,
+     [x1, Node(0, 1, root.tski, nothing, rew_nf, [x2], "normalForm")], "\$##")
+end
+
+# TODO: check for free variables in right argument
+function rew__24_23_23(root :: Node)
+  root.value = 1
+  root.fcode = rew_apply
+end
+
+# ensureNotFree: just raise an error for logic variables
+function eval_ensureNotFree(root :: Node)
+  root.fcode = rew_ensureNotFree
+  root.value = 1
+end
+
+function rew_ensureNotFree(root :: Node)
+  x1 = root.args[1]
+  if x1.tag == 4  # free variable?
+    error("Prelude.ensureNotFree: free variable occurred!")
+  else
+    # create forward node to argument
+    setForwardNode(root, root.args[1])
+  end
+end
+
+##############################################################################
+# Integer operations: note that arguments are aways inverted!
+
+# Addition on integers
+function eval_prim_5FInt_5Fplus(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, x1.value + x2.value)
+end
+
+# Subtraction on integers
+function eval_prim_5FInt_5Fminus(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, x1.value - x2.value)
+end
+
+# Multiplication on integers
+function eval_prim_5FInt_5Ftimes(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, x1.value * x2.value)
+end
+
+# mod operation
+function eval_prim_5FInt_5Fmod(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, mod(x1.value, x2.value))
+end
+
+# div operation
+function eval_prim_5FInt_5Fdiv(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, div(x1.value, x2.value))
+end
+
+# Equality on integers
+function eval_prim_5FeqInt(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.value == x2.value
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+# Less-than-or-equal on integers
+function eval_prim_5FltEqInt(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.value <= x2.value
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+##############################################################################
+# Float operations
+
+# prim_i2f
+function eval_prim_5Fi2f(root :: Node)
+  x1 = root.args[1]
+  setRHS(root, 6, 0, nothing, [], Float64(root.value))
+end
+
+# Equality on float
+function eval_prim_5FeqFloat(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.symbol == x2.symbol
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+# Less-than-or-equal on floats
+function eval_prim_5FltEqFloat(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.symbol <= x2.symbol
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+##############################################################################
+# Character operations
+
+# Prelude.prim_ord
+function eval_prim_5Ford(root :: Node)
+  x1 = root.args[1]
+  setConst(root, 5, x1.value)
+end
+
+# Prelude.prim_chr
+function eval_prim_5Fchr(root :: Node)
+  x1 = root.args[1]
+  setConst(root, 7, x1.value)
+end
+
+# Equality on characters
+function eval_prim_5FeqChar(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.value == x2.value
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+# Prelude.show_: show a literal as a string
+function eval_prim_5Fshow(root :: Node)
+  x1 = root.args[1]
+  if x1.tag == 5 # integer
+    s = string(x1.value)
+    setForwardNode(root, string2CurryString(s))
+  elseif x1.tag == 6 # float
+    s = string(x1.symbol)
+    setForwardNode(root, string2CurryString(s))
+  elseif x1.tag == 7 # char
+    s = "'" * Char(x1.value) * "'" # TODO: improve for special chars
+    setForwardNode(root, string2CurryString(s))
+  else
+    error("Prelude.prim_show applied on illegal term")
+  end
+end
+
+# Transform a Julia string into a Curry string
+function string2CurryString(s :: String) :: Node
+  xs = Node(10,0,0,nothing,nothing,[],"[]")
+  for i in 1:length(s)
+    c = Int(s[length(s)-i+1])
+    xs = Node(11, 0, 0, nothing, nothing,
+              [Node(7, c, 0, nothing, nothing, [], ""), xs], ":")
+  end
+  return xs
+end
+
+##############################################################################
+# IO monad operations
+
+# Implementation of Prelude.>>=$ (bind of IO monad)
+function eval_returnIO(root :: Node)
+  setRHS(root, 10, 0, nothing, [root.args[1]], "IO")
+end
+
+# Implementation of Prelude.>>=$ (bind of IO monad)
+function eval__3E_3E_3D_24(root :: Node)
+  root.fcode = rew__3E_3E_3D_24
+  root.value = 1
+end
+
+function rew__3E_3E_3D_24(root :: Node)
+  x1 = root.args[1] # IO structure
+  x2 = root.args[2] # function to action
+  setRHS(root, 0, 1, rew_apply, [x2, x1.args[1]], " ")
+end
+
+function eval_getChar(root :: Node)
+  c = Int(read(stdin,Char))
+  setRHS(root, 10, 0, nothing, [Node(7, c, 0, nothing, nothing, [], "")], "IO")
+end
+
+function eval_prim_5FputChar(root :: Node)
+  print(stdout, string(Char(root.args[1].value)))
+  setRHS(root, 10, 0, nothing,
+         [Node(10, 0, 0, nothing, nothing, [], "()")], "IO")
+end
+
+##############################################################################

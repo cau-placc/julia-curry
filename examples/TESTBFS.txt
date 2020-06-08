@@ -1,0 +1,10 @@
+Reading FlatCurry program 'NDNums'...
+Reading imported FlatCurry modules: Prelude
+Compiled Curry program written to: NDNums.jl
+EVALUATE: (normalForm main)
+RESULT: True
+Reading FlatCurry program 'Strategy'...
+Reading imported FlatCurry modules: Prelude
+Compiled Curry program written to: Strategy.jl
+EVALUATE: (normalForm main)
+RESULT: True

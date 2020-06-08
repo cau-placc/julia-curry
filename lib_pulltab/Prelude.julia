@@ -1,0 +1,120 @@
+##############################################################################
+# Implementation of Prelude.=:=
+
+function eval__3D_3A_3D(root :: Node)
+  error("Prelude.=:= not yet implemented for pull-tabbing")
+end
+
+##############################################################################
+# Implementation of Prelude.apply
+# Note: for partial constructor applications, an additional first
+# argument is inserted to store the index of the constructor
+
+function rew_apply(root :: Node)
+  fn = root.args[1]
+  xn = root.args[2]
+  root.tag    = fn.tag
+  root.symbol = fn.symbol
+  root.value  = fn.value - 1
+  root.fcode  = fn.fcode
+  root.args   = copy(fn.args)
+  push!(root.args, xn)
+  if root.value == 0 # application of last argument
+    if fn.tag == 8 # partial function call
+      root.tag    = 0
+      root.value  = fn.args[1].value
+    else # partial constructor call
+      root.tag    = fn.args[1].tag
+    end
+    popfirst!(root.args) # remove first constructor index argument
+  end
+end
+
+##############################################################################
+# ($!):
+function eval__24_21(root :: Node)
+  root.fcode = rew__24_21
+  root.value = 2
+end
+
+function rew__24_21(root :: Node)
+  root.value = 1
+  root.fcode = rew_apply
+end
+
+# ensureNotFree: just raise an error for logic variables
+function eval_ensureNotFree(root :: Node)
+  root.fcode = rew_ensureNotFree
+  root.value = 1
+end
+
+function rew_ensureNotFree(root :: Node)
+  x1 = root.args[1]
+  if x1.tag == 4  # free variable?
+    error("Prelude.ensureNotFree: free variable occurred!")
+  else
+    setForwardNode(root, root.args[1])
+  end
+end
+
+##############################################################################
+# Integer operations: note that arguments are aways inverted!
+
+# Addition on integers
+function eval_prim_5FInt_5Fplus(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, x1.value + x2.value)
+end
+
+# Subtraction on integers
+function eval_prim_5FInt_5Fminus(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, x1.value - x2.value)
+end
+
+# Multiplication on integers
+function eval_prim_5FInt_5Ftimes(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, x1.value * x2.value)
+end
+
+# mod operation
+function eval_prim_5FInt_5Fmod(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, mod(x1.value, x2.value))
+end
+
+# div operation
+function eval_prim_5FInt_5Fdiv(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  setConst(root, 5, div(x1.value, x2.value))
+end
+
+# Equality on integers
+function eval_prim_5FeqInt(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.value == x2.value
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+# Less-than-or-equal on integers
+function eval_prim_5FltEqInt(root :: Node)
+  x2 = root.args[1]
+  x1 = root.args[2]
+  if x1.value <= x2.value
+    setRHS(root, 11, 0, nothing, [], "True")
+  else
+    setRHS(root, 10, 0, nothing, [], "False")
+  end
+end
+
+##############################################################################
