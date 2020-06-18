@@ -10,6 +10,13 @@ C2J=c2j
 CJOPTIONS=
 export CJOPTIONS
 
+# Check for Julia system:
+JULIA=`which julia`
+if [ "$JULIA" = "" ] ; then
+  echo "Command 'julia' not found, skipping all tests!"
+  exit
+fi
+
 # Clean old stuff:
 clean() {
   cleancurry -r

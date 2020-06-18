@@ -23,5 +23,9 @@
     "executable": {
         "name"   : "c2j",
         "main"   : "Main"
+    },
+    "testsuite": {
+        "src-dir": "examples",
+        "script" : "test.sh"
     }
 }
