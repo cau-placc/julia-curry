@@ -1,7 +1,7 @@
 module BacktrackRTS
 
 export Node, runCurry, trailNode, makeChoice, setChoice, makeFree, makeNode,
-       setRHS, setConst, setForwardNode, rew_apply, voidNode, rew_nf
+       setRHS, setConst, setForwardNode, bindVarNode, voidNode, rew_nf
 
 ##############################################################################
 # Definition of graph nodes
@@ -256,7 +256,13 @@ end
 function setForwardNode(root :: Node, fnode :: Node)
   trailNode(root)
   root.tag  = 1
-  empty!(root.args); push!(root.args,fnode)
+  empty!(root.args); push!(root.args, fnode)
+end
+
+# Bind the first argument node (a free variable) to another node.
+# Implemented by setting a forward node.
+function bindVarNode(varnode :: Node, n :: Node)
+  setForwardNode(varnode, n)
 end
 
 ##############################################################################

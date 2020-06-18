@@ -2,7 +2,7 @@
 --- This module contains a simple compiler from ICurry to Julia programs.
 ---
 --- @author Michael Hanus
---- @version May 2020
+--- @version June 2020
 ------------------------------------------------------------------------------
 
 module C2J.Compiler
@@ -303,10 +303,7 @@ compileStm opts (ICaseCons v branches) = compileBranches branches
   compileBranches [] = -- no test due to complete branches: free variable case
     case branches of
       [] -> compileStm opts IExempt -- no constructor to instantiate
-      _  -> [JLPCall (if optRTS opts == PullTabMemo
-                        then "bindVarNode"
-                        else "setForwardNode")
-                     [JLIVar v, makeChoicesFor branches]]
+      _  -> [JLPCall "bindVarNode" [JLIVar v, makeChoicesFor branches]]
   compileBranches (IConsBranch icn _ b : bs) =
     [JLIf (JLOp "==" (JLStructAcc (JLIVar v) "tag") (JLInt (tagConstr icn)))
           (compileBlock opts b)
@@ -342,10 +339,7 @@ compileStm opts (ICaseLit v branches@(ILitBranch ilit _ : _)) =
     eqLit (IChar  c) = JLOp "==" (JLStructAcc (JLIVar v) "value") 
                                  (JLInt (ord c))
 
-  varBinding = [JLPCall (if optRTS opts == PullTabMemo
-                           then "bindVarNode"
-                           else "setForwardNode")
-                        [JLIVar v, makeChoicesFor branches]]
+  varBinding = [JLPCall "bindVarNode" [JLIVar v, makeChoicesFor branches]]
    where
     makeChoicesFor brs = case brs of
       []       -> error "makeChoicesFor with empty list"

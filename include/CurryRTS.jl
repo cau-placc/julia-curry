@@ -1,7 +1,7 @@
 module CurryRTS
 
-export Node, runCurry, makeChoice, setChoice, makeFree,
-       setRHS, setConst, setForwardNode, bindVarNode, voidNode, rew_nf
+export Node, runCurry, makeChoice, setChoice, makeFree, setRHS, setConst,
+       setForwardNode, bindVarNode, voidNode, rew_nf
 
 ##############################################################################
 # Definition of graph nodes

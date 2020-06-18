@@ -20,7 +20,7 @@ import C2J.PackageConfig ( packagePath )
 banner :: String
 banner = unlines [bannerLine, bannerText, bannerLine]
  where
-   bannerText = "Curry->Julia Compiler (Version of 08/06/20)"
+   bannerText = "Curry->Julia Compiler (Version of 18/06/20)"
    bannerLine = take (length bannerText) (repeat '=')
 
 main :: IO ()

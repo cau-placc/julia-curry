@@ -1,7 +1,7 @@
 module PulltabRTS
 
-export Node, runCurry, makeChoice, setChoice, makeFree,
-       setRHS, setConst, setForwardNode, rew_apply, voidNode, rew_nf
+export Node, runCurry, makeChoice, setChoice, makeFree, setRHS, setConst,
+       setForwardNode, bindVarNode, voidNode, rew_nf
 
 ##############################################################################
 # Definition of graph nodes
@@ -198,10 +198,16 @@ function setConst(root :: Node, ntag, nvalue)
   root.value   = nvalue
 end
 
-# Set the contents of the first argument node.
+# Set the first argument node to a forward node.
 function setForwardNode(root :: Node, fnode :: Node)
   root.tag  = 1
   empty!(root.args); push!(root.args,fnode)
+end
+
+# Bind the first argument node (a free variable) to another node.
+# Implemented by setting a forward node.
+function bindVarNode(varnode :: Node, n :: Node)
+  setForwardNode(varnode, n)
 end
 
 ##############################################################################
