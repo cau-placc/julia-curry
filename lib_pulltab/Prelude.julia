@@ -1,8 +1,86 @@
 ##############################################################################
+# Implementation of Prelude.failed
+
+function eval_failed(root :: Node)
+  root.tag = 3
+end
+
+##############################################################################
+# Implementation of Prelude.cond
+
+function eval_cond(root :: Node)
+  root.fcode = rew_cond
+  root.value = 1
+end
+
+function rew_cond(root :: Node)
+  x1 = root.args[1]
+  x2 = root.args[2]
+  if (x1.tag == 10)
+    root.tag = 3
+  else
+    if (x1.tag == 11)
+      root.tag = 1
+      empty!(root.args)
+      push!(root.args, x2)
+    else
+      bindVarNode(x1, Node(11, 0, root.tski, nothing, nothing, [], "True"))
+    end
+  end
+end
+
+##############################################################################
+# Implementation of Prelude.&
+# Here we provide a simple sequential implemention.
+
+function eval__26(root :: Node)
+  root.fcode = rew__26
+  root.value = 1
+end
+
+function rew__26(root :: Node)
+  x1 = root.args[1]
+  if (x1.tag == 10)
+    root.tag = 3
+  else
+    if (x1.tag == 11)
+      root.value = 2
+      root.fcode = rew1__26
+    else
+      error("Prelude.&: free variable occurred!")
+    end
+  end
+end
+
+function rew1__26(root :: Node)
+  x2 = root.args[2]
+  if (x2.tag == 10)
+    root.tag = 3
+  else
+    if (x2.tag == 11)
+      root.tag = 11
+      root.value = 0
+      root.fcode = nothing
+      empty!(root.args)
+      root.symbol = "True"
+    else
+      error("Prelude.&: free variable occurred!")
+    end
+  end
+end
+
+##############################################################################
 # Implementation of Prelude.=:=
 
 function eval__3D_3A_3D(root :: Node)
   error("Prelude.=:= not yet implemented for pull-tabbing")
+end
+
+##############################################################################
+# Implementation of Prelude.=:<= (without non-linearity checking!)
+
+function eval__3D_3A_3C_3D(root :: Node)
+  error("Prelude.=:<= not yet implemented for pull-tabbing")
 end
 
 ##############################################################################
@@ -53,6 +131,7 @@ function rew_ensureNotFree(root :: Node)
   if x1.tag == 4  # free variable?
     error("Prelude.ensureNotFree: free variable occurred!")
   else
+    # create forward node to argument
     setForwardNode(root, root.args[1])
   end
 end

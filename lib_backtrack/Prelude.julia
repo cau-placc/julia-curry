@@ -83,7 +83,7 @@ function rew__3D_3A_3D(root :: Node)
   x2 = root.args[2]
   if x1.tag == 4 && x2.tag == 4 # free variables
     if x1 != x2
-      setForwardNode(x1, x2) # bind variable
+      bindVarNode(x1, x2) # bind variable
     end
     setRHS(root, 11, 0, nothing, [], "True")
   elseif x1.tag == 4
@@ -129,14 +129,14 @@ end
 function bindVariable2Cons(root :: Node, var :: Node, exp :: Node)
   if exp.tag < 8 # free variable and literal
     # bind variable to literal:
-    setForwardNode(var, exp) # bind variable to literal
+    bindVarNode(var, exp) # bind variable to literal
     setRHS(root, 11, 0, nothing, [], "True")
   elseif exp.tag >= 10 # bind to constructor applied to free variables
     fargs = []
     for i in 1:length(exp.args)
       push!(fargs,makeFree(root.tski))
     end
-    setForwardNode(var,makeNode(exp.tag, exp.value, nothing, fargs, exp.symbol))
+    bindVarNode(var, makeNode(exp.tag, exp.value, nothing, fargs, exp.symbol))
   else
     error("Unification with partial application!")
   end
@@ -154,7 +154,7 @@ function rew__3D_3A_3C_3D(root :: Node)
   x1 = root.args[1]
   x2 = root.args[2]
   if x1.tag == 4 # functional pattern is free variable
-    setForwardNode(x1, x2) # bind variable
+    bindVarNode(x1, x2) # bind variable
     setRHS(root, 11, 0, nothing, [], "True")
   else
     root.fcode = rew_fpunif
