@@ -133,7 +133,7 @@ options =
             "verbosity level:\n0: quiet (same as `-q')\n1: show status messages (default)\n2: show generated program (same as `-v')\n3: show all details"
   , Option "" ["pulltabmemo"]
            (NoArg (\opts -> opts { optRTS = PullTabMemo }))
-           "use RTS for memorized pull-tabbing (default)"
+           "use RTS for memoized pull-tabbing (default)"
   , Option "" ["pulltab"]
            (NoArg (\opts -> opts { optRTS = PullTab }))
            "use RTS for pure pull-tabbing"
@@ -146,6 +146,9 @@ options =
   , Option "" ["bfs"]
            (NoArg (\opts -> opts { optBFS = True }))
            "use breadth-first search strategy"
+  , Option "" ["dfs"]
+           (NoArg (\opts -> opts { optBFS = False }))
+           "use depth-first search strategy (default)"
   , Option "" ["hnf"]
            (NoArg (\opts -> opts { optNormalForm = False }))
            "compute head normal form (no 'normalForm' wrapper)"
