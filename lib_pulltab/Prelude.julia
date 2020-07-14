@@ -24,7 +24,7 @@ function rew_cond(root :: Node)
       empty!(root.args)
       push!(root.args, x2)
     else
-      bindVarNode(x1, Node(11, 0, root.tski, nothing, nothing, [], "True"))
+      bindVarNode(x1, Node(11, 0, root.otsk, nothing, nothing, [], "True"))
     end
   end
 end

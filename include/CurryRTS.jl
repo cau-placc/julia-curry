@@ -21,7 +21,7 @@ mutable struct Node
                         # choice identifier for choices,
                         # index of constructors or integer/char value
                         # missing arguments for partial calls
-  tski   :: Int64       # finger print (or task) identifier
+  otsk   :: Int64       # identifier of the owner task
   taskns :: Union{Nothing,Dict{Int64,Node}} # forward nodes for different tasks
   fcode                 # function code
   args   :: Array{Node} # arguments or forward node
@@ -121,13 +121,13 @@ function hnfNode(task :: Task, tskcnt :: Int64) :: Node
   cn = task.control
   while !isempty(stack) || cn.tag == 0 || cn.tag == 1
     #traceTask("ROOT", task, isempty(stack) ? cn : stack[1])
-    if cn.tag == 4 && cn.tski < task.tasknum && cn.taskns != nothing
+    if cn.tag == 4 && cn.otsk < task.tasknum && cn.taskns != nothing
       # follow the possible instantiation of a free variable:
       cn1 = followTaskForwardNode(task, cn)
       if cn1 != cn && !isempty(stack)
         # binding found, replace corresponding argument in top stack function:
         topfun = last(stack)
-        if task.tasknum > topfun.tski
+        if task.tasknum > topfun.otsk
           # insert forward node in topfun:
           if topfun.taskns == nothing
             #println("CREATE TASKNS")
@@ -147,15 +147,15 @@ function hnfNode(task :: Task, tskcnt :: Int64) :: Node
 
       if !isempty(stack)
         topfun = last(stack)
-        if cn.tski > topfun.tski
+        if cn.otsk > topfun.otsk
           # insert forward node in topfun:
           if topfun.taskns == nothing
             #println("CREATE TASKNS")
             topfun.taskns = Dict{Int64,Node}()
           end
-          fwdnode = Node(0,topfun.value,cn.tski,nothing,topfun.fcode,
+          fwdnode = Node(0,topfun.value,cn.otsk,nothing,topfun.fcode,
                          copy(topfun.args),topfun.symbol)
-          topfun.taskns[cn.tski] = fwdnode
+          topfun.taskns[cn.otsk] = fwdnode
           stack[end] = fwdnode
         end
         # set argument of top function (just to be safe for forward nodes)
@@ -179,7 +179,7 @@ function hnfNode(task :: Task, tskcnt :: Int64) :: Node
         cn = cn.args[fp[cn.value]]
         if !isempty(stack)
           topfun = last(stack)
-          if task.tasknum > topfun.tski
+          if task.tasknum > topfun.otsk
             # insert forward node in topfun:
             if topfun.taskns == nothing
               #println("CREATE TASKNS")
@@ -213,7 +213,7 @@ function hnfNode(task :: Task, tskcnt :: Int64) :: Node
     # final alternative: cn.tag == 0, i.e., operation
     else
       hasfwdnode = false
-      if cn.tski < task.tasknum && cn.taskns != nothing
+      if cn.otsk < task.tasknum && cn.taskns != nothing
         # check whether there is a forward node in this or some parent task:
         if haskey(cn.taskns, task.tasknum)
           hasfwdnode = true 
@@ -254,10 +254,10 @@ freshChoiceId = 0
 
 # Create a choice node with a fresh choice identifier for a given task
 # identifier.
-function makeChoice(tski, l, r) :: Node
+function makeChoice(otsk, l, r) :: Node
   global freshChoiceId
   freshChoiceId += 1
-  return Node(2,freshChoiceId,tski,nothing,nothing,[l,r],"?")
+  return Node(2,freshChoiceId,otsk,nothing,nothing,[l,r],"?")
 end
 
 # replace argument node by a choice node with a fresh choice identifier
@@ -274,13 +274,13 @@ end
 # Auxiliary operations
 
 # Node representing a void value. Used to initialize Node variables.
-function voidNode(tski)
-  return Node(10, 0, tski, nothing, nothing, [], "()")
+function voidNode(otsk)
+  return Node(10, 0, otsk, nothing, nothing, [], "()")
 end
 
 # Create a free variable node
-function makeFree(tski) :: Node
-  return Node(4, 0, tski, nothing, nothing, [], "FREE")
+function makeFree(otsk) :: Node
+  return Node(4, 0, otsk, nothing, nothing, [], "FREE")
 end
 
 # Set the first argument node (which is the root of a redex)
@@ -310,7 +310,7 @@ end
 # Note that this binding is made only for the current task.
 function bindVarNode(varnode :: Node, n :: Node)
   global currentHnfTask
-  if currentHnfTask.tasknum > varnode.tski
+  if currentHnfTask.tasknum > varnode.otsk
     # insert forward node in varnode:
     if varnode.taskns == nothing
       #println("CREATE TASKNS FOR FREE VARIABLE")
@@ -327,7 +327,7 @@ end
 
 # Wrap a node with the `normalForm` operation.
 function makeNormalForm(root :: Node)
-  return Node(0,1,root.tski,nothing,rew_nf,[root],"normalForm")
+  return Node(0,1,root.otsk,nothing,rew_nf,[root],"normalForm")
 end
 
 # Operation to compute the normal form of its argument.
@@ -342,7 +342,7 @@ function rew_nf(root :: Node)
     root.tag    = x.tag
     root.symbol = x.symbol
     root.value  = x.value
-    root.tski   = x.tski
+    root.otsk   = x.otsk
     root.taskns = x.taskns
     root.fcode  = nothing
     root.args   = x.args
@@ -360,7 +360,7 @@ function rew_nfArgs(root :: Node)
     root.tag    = cterm.tag
     root.symbol = cterm.symbol
     root.value  = cterm.value
-    root.tski   = cterm.tski
+    root.otsk   = cterm.otsk
     root.taskns = cterm.taskns
     root.fcode  = nothing
   else
@@ -375,7 +375,7 @@ end
 # when printing choice nodes.
 function printNode(tsk:: Task, n :: Node)
   hasfwdnode = false
-  if (n.tag == 0 || n.tag == 4) && n.tski < tsk.tasknum && n.taskns != nothing
+  if (n.tag == 0 || n.tag == 4) && n.otsk < tsk.tasknum && n.taskns != nothing
     n1 = followTaskForwardNode(tsk, n)
     if n1 != n
       n = n1
@@ -448,7 +448,7 @@ end
 # Print a node symbol
 function printNodeSymbol(n :: Node)
   #print(n.symbol * (n.tag == 0 ? "[" * string(objectid(n)) * "]" : ""))
-  #print(n.symbol * (n.tag == 0 ? "[" * string(n.tski) * "]" : ""))
+  #print(n.symbol * (n.tag == 0 ? "[" * string(n.otsk) * "]" : ""))
   print(n.symbol)
 end
 

@@ -24,7 +24,7 @@ function rew_cond(root :: Node)
       empty!(root.args)
       push!(root.args, x2)
     else
-      bindVarNode(x1, Node(11, 0, root.tski, nothing, nothing, [], "True"))
+      bindVarNode(x1, Node(11, 0, root.otsk, nothing, nothing, [], "True"))
     end
   end
 end
@@ -134,7 +134,7 @@ function bindVariable2Cons(root :: Node, var :: Node, exp :: Node)
   elseif exp.tag >= 10 # bind to constructor applied to free variables
     fargs = []
     for i in 1:length(exp.args)
-      push!(fargs,makeFree(root.tski))
+      push!(fargs,makeFree(root.otsk))
     end
     bindVarNode(var, makeNode(exp.tag, exp.value, nothing, fargs, exp.symbol))
   else

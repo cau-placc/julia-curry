@@ -2,7 +2,7 @@
 --- This module contains a simple compiler from ICurry to Julia programs.
 ---
 --- @author Michael Hanus
---- @version June 2020
+--- @version July 2020
 ------------------------------------------------------------------------------
 
 module C2J.Compiler
@@ -28,6 +28,7 @@ import Julia.Types
 compile :: Options -> String -> IO ()
 compile opts0 mname = do
   icprog <- readICurryProg mname (optVerb opts0 == 0)
+  printStatus opts $ "Compiling Curry program to Julia..."
   let opts     = opts0 { optDemands = collectDemandInfo icprog
                        , optModName = mname }
       mainname = if not (null (optMain opts))
@@ -371,7 +372,7 @@ genMakeChoice opts a1 a2
 
 genNode :: Options -> Int -> String -> Int -> JLExp -> String ->
            [JLExp] -> JLExp
-genNode opts tag symbol value tski fcode args
+genNode opts tag symbol value otsk fcode args
   | optRTS opts == PullTabOnly
   = JLFCall "Node" [JLInt tag, JLString symbol, JLInt value,
                     JLSVar fcode, JLArrayInit args]
@@ -379,11 +380,11 @@ genNode opts tag symbol value tski fcode args
   = JLFCall "makeNode" [JLInt tag, JLInt value, JLSVar fcode,
                         JLArrayInit args, JLString symbol]
   | otherwise
-  = JLFCall "Node" [JLInt tag, JLInt value, tski, JLSVar "nothing",
+  = JLFCall "Node" [JLInt tag, JLInt value, otsk, JLSVar "nothing",
                     JLSVar fcode, JLArrayInit args, JLString symbol]
 
 genFloatNode :: Options -> Float -> JLExp -> JLExp
-genFloatNode opts value tski
+genFloatNode opts value otsk
   | optRTS opts == PullTabOnly
   = JLFCall "Node" [JLInt tagFloat, JLFloat value, JLInt 0,
                     JLSVar "nothing", JLArrayInit []]
@@ -391,11 +392,11 @@ genFloatNode opts value tski
   = JLFCall "makeNode" [JLInt tagFloat, JLInt 0, JLSVar "nothing",
                         JLArrayInit [], JLFloat value]
   | otherwise
-  = JLFCall "Node" [JLInt tagFloat, JLInt 0, tski, JLSVar "nothing",
+  = JLFCall "Node" [JLInt tagFloat, JLInt 0, otsk, JLSVar "nothing",
                     JLSVar "nothing", JLArrayInit [], JLFloat value]
 
 rootTaskId :: JLExp
-rootTaskId = JLStructAcc (JLIVar 0) "tski"
+rootTaskId = JLStructAcc (JLIVar 0) "otsk"
 
 ------------------------------------------------------------------------------
 --- Encode all non-alphanumeric characters in strings by _HEX.

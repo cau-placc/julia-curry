@@ -173,7 +173,7 @@ end
 voidNode = Node(10, "()", 0, nothing, [])
 
 # Create a free variable node
-function makeFree(tski) :: Node
+function makeFree(otsk) :: Node
   return Node(4, "free", 0, nothing, [])
 end
 

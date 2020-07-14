@@ -24,7 +24,7 @@ function rew_cond(root :: Node)
       empty!(root.args)
       push!(root.args, x2)
     else
-      bindVarNode(x1, Node(11, 0, root.tski, nothing, nothing, [], "True"))
+      bindVarNode(x1, Node(11, 0, root.otsk, nothing, nothing, [], "True"))
     end
   end
 end
@@ -120,12 +120,12 @@ function rew__3D_3A_3D(root :: Node)
     elseif isempty(x1.args)
       setRHS(root, 11, 0, nothing, [], "True")
     else
-      unifexp = Node(0, 0, root.tski, nothing, eval__3D_3A_3D,
+      unifexp = Node(0, 0, root.otsk, nothing, eval__3D_3A_3D,
                      [x1.args[1], x2.args[1]],"=:=")
       for i in 2:length(x1.args)
-        unifarg = Node(0, 0, root.tski, nothing, eval__3D_3A_3D,
+        unifarg = Node(0, 0, root.otsk, nothing, eval__3D_3A_3D,
                        [x1.args[i], x2.args[i]],"=:=")
-        unifexp = Node(0, 1, root.tski, nothing, rew__26,
+        unifexp = Node(0, 1, root.otsk, nothing, rew__26,
                        [unifexp, unifarg],"&")
       end
       setForwardNode(root,unifexp)
@@ -138,15 +138,15 @@ end
 function bindVariable2Cons(root :: Node, var :: Node, exp :: Node)
   if exp.tag < 8 # free variable and literal
     # bind variable to literal:
-    bindVarNode(var, Node(exp.tag, exp.value, root.tski, nothing, nothing, [],
+    bindVarNode(var, Node(exp.tag, exp.value, root.otsk, nothing, nothing, [],
                           exp.symbol))
     setRHS(root, 11, 0, nothing, [], "True")
   elseif exp.tag >= 10 # bind to constructor applied to free variables
     fargs = []
     for i in 1:length(exp.args)
-      push!(fargs,makeFree(root.tski))
+      push!(fargs,makeFree(root.otsk))
     end
-    bindVarNode(var, Node(exp.tag, exp.value, root.tski, nothing, nothing,
+    bindVarNode(var, Node(exp.tag, exp.value, root.otsk, nothing, nothing,
                           fargs, exp.symbol))
   else
     error("Unification with partial application!")
@@ -203,12 +203,12 @@ function rew_fpunif(root :: Node)
     elseif isempty(x1.args)
       setRHS(root, 11, 0, nothing, [], "True")
     else
-      unifexp = Node(0, 0, root.tski, nothing, eval__3D_3A_3C_3D,
+      unifexp = Node(0, 0, root.otsk, nothing, eval__3D_3A_3C_3D,
                      [x1.args[1], x2.args[1]],"=:<=")
       for i in 2:length(x1.args)
-        unifarg = Node(0, 0, root.tski, nothing, eval__3D_3A_3C_3D,
+        unifarg = Node(0, 0, root.otsk, nothing, eval__3D_3A_3C_3D,
                        [x1.args[i], x2.args[i]],"=:<=")
-        unifexp = Node(0, 1, root.tski, nothing, rew__26,
+        unifexp = Node(0, 1, root.otsk, nothing, rew__26,
                        [unifexp, unifarg],"&")
       end
       setForwardNode(root,unifexp)
@@ -261,7 +261,7 @@ function eval__24_21_21(root :: Node)
   x1 = root.args[1]
   x2 = root.args[2]
   setRHS(root, 0, 2, rew__24_21_21,
-     [x1, Node(0, 1, root.tski, nothing, rew_nf, [x2], "normalForm")], "\$!!")
+     [x1, Node(0, 1, root.otsk, nothing, rew_nf, [x2], "normalForm")], "\$!!")
 end
 
 function rew__24_21_21(root :: Node)
@@ -274,7 +274,7 @@ function eval__24_23_23(root :: Node)
   x1 = root.args[1]
   x2 = root.args[2]
   setRHS(root, 0, 2, rew__24_23_23,
-     [x1, Node(0, 1, root.tski, nothing, rew_nf, [x2], "normalForm")], "\$##")
+     [x1, Node(0, 1, root.otsk, nothing, rew_nf, [x2], "normalForm")], "\$##")
 end
 
 # TODO: check for free variables in right argument

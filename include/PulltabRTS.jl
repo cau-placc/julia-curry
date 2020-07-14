@@ -21,7 +21,7 @@ mutable struct Node
                         # choice identifier for choices,
                         # index of constructors or integer/char value
                         # missing arguments for partial calls
-  tski   :: Int64       # finger print (or task) identifier
+  otsk   :: Int64       # identifier of the owner task
   taskns :: Union{Nothing,Dict{Int64,Node}} # forward nodes for different tasks
   fcode                 # function code
   args   :: Array{Node} # arguments or forward node
@@ -124,8 +124,8 @@ function hnfNode(task :: Task) :: Node
       args1[fn.value] = cn.args[1]
       args2 = copy(fn.args)
       args2[fn.value] = cn.args[2]
-      c1 = Node(0,fn.value,fn.tski,nothing,fn.fcode,args1,fn.symbol)
-      c2 = Node(0,fn.value,fn.tski,nothing,fn.fcode,args2,fn.symbol)
+      c1 = Node(0,fn.value,fn.otsk,nothing,fn.fcode,args1,fn.symbol)
+      c2 = Node(0,fn.value,fn.otsk,nothing,fn.fcode,args2,fn.symbol)
       fn.tag    = 2
       fn.value  = cn.value
       fn.fcode  = nothing
@@ -152,10 +152,10 @@ end
 freshChoiceId = 0
 
 # Create a choice node with a fresh choice identifier
-function makeChoice(tski, l, r) :: Node
+function makeChoice(otsk, l, r) :: Node
   global freshChoiceId
   freshChoiceId += 1
-  return Node(2,freshChoiceId,tski,nothing,nothing,[l,r],"?")
+  return Node(2,freshChoiceId,otsk,nothing,nothing,[l,r],"?")
 end
 
 # replace argument node by a choice node with a fresh choice identifier
@@ -172,13 +172,13 @@ end
 # Auxiliary operations
 
 # Node representing a void value. Used to initialize Node variables.
-function voidNode(tski)
-  return Node(10, 0, tski, nothing, nothing, [], "()")
+function voidNode(otsk)
+  return Node(10, 0, otsk, nothing, nothing, [], "()")
 end
 
 # Create a free variable node
-function makeFree(tski) :: Node
-  return Node(4, 0, tski, nothing, nothing, [], "free")
+function makeFree(otsk) :: Node
+  return Node(4, 0, otsk, nothing, nothing, [], "free")
 end
 
 # Set the first argument node (which is the root of a redex)
@@ -215,7 +215,7 @@ end
 
 # Wrap a node with the `normalForm` operation.
 function makeNormalForm(root :: Node)
-  return Node(0,1,root.tski,nothing,rew_nf,[root],"normalForm")
+  return Node(0,1,root.otsk,nothing,rew_nf,[root],"normalForm")
 end
 
 # Operation to compute the normal form of its argument.
@@ -230,7 +230,7 @@ function rew_nf(root :: Node)
     root.tag    = x.tag
     root.symbol = x.symbol
     root.value  = x.value
-    root.tski   = x.tski
+    root.otsk   = x.otsk
     root.taskns = x.taskns
     root.fcode  = nothing
     root.args   = x.args
@@ -248,7 +248,7 @@ function rew_nfArgs(root :: Node)
     root.tag    = cterm.tag
     root.symbol = cterm.symbol
     root.value  = cterm.value
-    root.tski   = cterm.tski
+    root.otsk   = cterm.otsk
     root.taskns = cterm.taskns
     root.fcode  = nothing
   else
@@ -308,7 +308,7 @@ end
 # Print a node symbol
 function printNodeSymbol(n :: Node)
   #print(n.symbol * (n.tag == 0 ? "[" * string(objectid(n)) * "]" : ""))
-  #print(n.symbol * (n.tag == 0 ? "[" * string(n.tski) * "]" : ""))
+  #print(n.symbol * (n.tag == 0 ? "[" * string(n.otsk) * "]" : ""))
   print(n.symbol)
 end
 

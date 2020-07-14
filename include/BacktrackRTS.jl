@@ -21,7 +21,7 @@ mutable struct Node
                         # choice identifier for choices,
                         # index of constructors or integer/char value
                         # missing arguments for partial calls
-  tski   :: Int64       # identifier to remember creation time (choice point)
+  otsk   :: Int64       # identifier to remember creation time (choice point)
   fcode                 # function code
   args   :: Array{Node} # arguments or forward node
   symbol :: Union{String,Float64} # string representation of node symbol
@@ -57,10 +57,10 @@ function trailNode(n :: Node)
   global trailcounter
   global currentchoicenum
 
-  if n.tski < currentchoicenum
+  if n.otsk < currentchoicenum
     #print("TRAIL NODE: "); printNode(n); println()
     trailcounter += 1
-    cn = Node(n.tag, n.value, n.tski, n.fcode, copy(n.args), n.symbol)
+    cn = Node(n.tag, n.value, n.otsk, n.fcode, copy(n.args), n.symbol)
     currentcp = last(backtrackstack)
     push!(currentcp.trail,(n,cn))
   end
@@ -146,7 +146,7 @@ function runCurry(mainname::String, maincode, withnf::Bool, interactive::Bool,
           tn2 = tn[2]
           tn1.tag    = tn2.tag
           tn1.value  = tn2.value
-          tn1.tski   = tn2.tski
+          tn1.otsk   = tn2.otsk
           tn1.fcode  = tn2.fcode
           tn1.args   = tn2.args
           tn1.symbol = tn2.symbol
@@ -186,8 +186,8 @@ end
 # Auxiliary operations for dealing with choice nodes
 
 # Create a choice node with a fresh choice identifier
-function makeChoice(tski, l, r) :: Node
-  return Node(2, 0, tski, nothing, [l,r], "?")
+function makeChoice(otsk, l, r) :: Node
+  return Node(2, 0, otsk, nothing, [l,r], "?")
 end
 
 # Replace argument node by a choice node
@@ -203,12 +203,12 @@ end
 # Auxiliary operations
 
 # Node representing a void value. Used to initialize Node variables.
-function voidNode(tski)
-  return Node(10, 0, tski, nothing, [], "()")
+function voidNode(otsk)
+  return Node(10, 0, otsk, nothing, [], "()")
 end
 
 # Create a free variable node
-function makeFree(tski) :: Node
+function makeFree(otsk) :: Node
   return makeNode(4, 0, nothing, [], "free")
 end
 
@@ -224,7 +224,7 @@ end
 function setRHS(root :: Node, ntag, nvalue, nfcode, nargs, nsymbol)
   global currentchoicenum
   trailNode(root)
-  root.tski    = currentchoicenum
+  root.otsk    = currentchoicenum
   root.tag     = ntag
   root.value   = nvalue
   root.fcode   = nfcode
@@ -237,7 +237,7 @@ end
 function setConst(root :: Node, ntag, nvalue)
   global currentchoicenum
   trailNode(root)
-  root.tski    = currentchoicenum
+  root.otsk    = currentchoicenum
   root.tag     = ntag
   root.value   = nvalue
 end
@@ -247,7 +247,7 @@ end
 function setFloatConst(root :: Node, fvalue)
   global currentchoicenum
   trailNode(root)
-  root.tski    = currentchoicenum
+  root.otsk    = currentchoicenum
   root.tag     = 6
   root.symbol  = fvalue
 end
@@ -286,7 +286,7 @@ function rew_nf(root :: Node)
     root.tag    = x.tag
     root.symbol = x.symbol
     root.value  = x.value
-    root.tski   = x.tski
+    root.otsk   = x.otsk
     root.fcode  = nothing
     root.args   = x.args
   else
@@ -303,7 +303,7 @@ function rew_nfArgs(root :: Node)
     cterm       = pop!(root.args)
     root.tag    = cterm.tag
     root.value  = cterm.value
-    root.tski   = cterm.tski
+    root.otsk   = cterm.otsk
     root.fcode  = nothing
     root.symbol = cterm.symbol
   else
@@ -360,7 +360,7 @@ end
 # Print a node symbol
 function printNodeSymbol(n :: Node)
   #print(n.symbol * (n.tag == 0 ? "[" * string(objectid(n)) * "]" : ""))
-  #print(n.symbol * (n.tag == 0 ? "[" * string(n.tski) * "]" : ""))
+  #print(n.symbol * (n.tag == 0 ? "[" * string(n.otsk) * "]" : ""))
   print(n.symbol)
 end
 
