@@ -211,6 +211,8 @@ function bindVarNode(varnode :: Node, n :: Node)
 end
 
 ##############################################################################
+# ADDITIONAL STUFF TO SUPPORT THE REPL:
+##############################################################################
 # Normal form computation.
 
 # Wrap a node with the `normalForm` operation.
