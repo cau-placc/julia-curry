@@ -1,5 +1,5 @@
 # name of the Curry2Julia compiler executable
-CJC=c2j
+CJC=jucs
 
 # standard options for the compiler
 export CJOPTIONS=

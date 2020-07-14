@@ -1,16 +1,19 @@
 Reading FlatCurry program 'Fac'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Fac.jl
 EVALUATE: (normalForm main)
 RESULT: 720
 Reading FlatCurry program 'CaseLiteral'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: CaseLiteral.jl
 EVALUATE: (normalForm main)
 RESULT: 0
 RESULT: 2
 Reading FlatCurry program 'ColormapFree'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: ColormapFree.jl
 EVALUATE: (normalForm main)
 RESULT: (Red : (Green : (Blue : (Red : []))))
@@ -21,11 +24,13 @@ RESULT: (Blue : (Red : (Green : (Blue : []))))
 RESULT: (Blue : (Green : (Red : (Blue : []))))
 Reading FlatCurry program 'Higher'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Higher.jl
 EVALUATE: (normalForm main)
 RESULT: (False : (True : []))
 Reading FlatCurry program 'Last'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Last.jl
 EVALUATE: (normalForm main)
 RESULT: (True (,) 25)

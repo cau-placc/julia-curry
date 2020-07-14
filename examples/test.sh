@@ -4,7 +4,7 @@
 CURRYHOME=..
 CURRYBIN=$CURRYHOME/bin
 
-C2J=c2j
+C2J=jucs
 
 # Hide standard options:
 CJOPTIONS=

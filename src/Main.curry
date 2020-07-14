@@ -26,10 +26,10 @@ banner = unlines [bannerLine, bannerText, bannerLine]
 main :: IO ()
 main = do
   args <- getArgs
-  c2joptions <- getEnviron "CJOPTIONS" >>= return . words
-  unless (null c2joptions) $
-    putStrLn $ "Add standard options: " ++ unwords c2joptions
-  (opts,progs) <- processOptions banner (c2joptions ++ args)
+  cjoptions <- getEnviron "CJOPTIONS" >>= return . words
+  unless (null cjoptions) $
+    putStrLn $ "Add standard options: " ++ unwords cjoptions
+  (opts,progs) <- processOptions banner (cjoptions ++ args)
   case progs of
     []  -> error "Module name missing"
     [p] -> mainProg opts p

@@ -21,7 +21,7 @@
     "exportedModules": [ "C2J.Compiler", "C2J.Options" ],
     "configModule": "C2J.PackageConfig",
     "executable": {
-        "name"   : "c2j",
+        "name"   : "jucs",
         "main"   : "Main"
     },
     "testsuite": {

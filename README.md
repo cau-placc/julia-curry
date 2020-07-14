@@ -13,7 +13,7 @@ Installation
 
 To install the compiler and pre-compile the system libraries
 (currently: only the `Prelude`), run `make`. This installs
-the compiler as executable `$HOME/.cpm/c2j`.
+the compiler as executable `$HOME/.cpm/jucs`.
 
 
 Usage
@@ -21,12 +21,12 @@ Usage
 
 To compile a Curry module `Mod` into a Julia program, run
 
-    > c2j Mod
+    > jucs Mod
 
 To compile a Curry module `Mod` and execute the function `main`
 (an operation without arguments), run
 
-    > c2j -x Mod
+    > jucs -x Mod
 
 
 Options
@@ -63,7 +63,7 @@ Option `--time`:
 
 To see a list of all options, execute
 
-    > c2j --help
+    > jucs --help
 
 
 Stand-alone execution

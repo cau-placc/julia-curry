@@ -1,5 +1,6 @@
 Reading FlatCurry program 'Colormap'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Colormap.jl
 EVALUATE: (normalForm main)
 RESULT: (Red : (Green : (Blue : (Red : []))))
@@ -10,29 +11,34 @@ RESULT: (Blue : (Red : (Green : (Blue : []))))
 RESULT: (Blue : (Green : (Red : (Blue : []))))
 Reading FlatCurry program 'Data'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Data.jl
 EVALUATE: (normalForm main)
 RESULT: Black
 RESULT: White
 Reading FlatCurry program 'FreeBool'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: FreeBool.jl
 EVALUATE: (normalForm main)
 RESULT: False
 RESULT: False
 Reading FlatCurry program 'Half'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Half.jl
 EVALUATE: (normalForm main)
 RESULT: (S (S O))
 RESULT: (S (S (S O)))
 Reading FlatCurry program 'InfList'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: InfList.jl
 EVALUATE: (normalForm main)
 RESULT: 1
 Reading FlatCurry program 'NonDet'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: NonDet.jl
 EVALUATE: (normalForm main)
 RESULT: False
@@ -41,6 +47,7 @@ RESULT: True
 RESULT: False
 Reading FlatCurry program 'Perm'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Perm.jl
 EVALUATE: (normalForm main)
 RESULT: (4 : (3 : (2 : (1 : []))))
@@ -69,22 +76,26 @@ RESULT: (1 : (2 : (4 : (3 : []))))
 RESULT: (1 : (2 : (3 : (4 : []))))
 Reading FlatCurry program 'PermSort'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: PermSort.jl
 EVALUATE: (normalForm main)
 RESULT: (O : ((S O) : ((S (S O)) : ((S (S (S O))) : ((S (S (S (S O)))) : [])))))
 Reading FlatCurry program 'Rev'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Rev.jl
 EVALUATE: (normalForm main)
 RESULT: (9 : (8 : (7 : (6 : (5 : (4 : (3 : (2 : (1 : (0 : []))))))))))
 Reading FlatCurry program 'Xor'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Xor.jl
 EVALUATE: (normalForm main)
 RESULT: False
 RESULT: False
 Reading FlatCurry program 'Zip'...
 Reading imported FlatCurry modules: Prelude
+Compiling Curry program to Julia...
 Compiled Curry program written to: Zip.jl
 EVALUATE: (normalForm main)
 RESULT: ((1 (,) 1) : ((2 (,) 1) : ((3 (,) 1) : [])))

@@ -49,16 +49,16 @@ main = nrev4096
 Results (reported time / time shown by time command for complete execution):
 
 C2J:
-> c2j -x -t --hnf NRev -m nrev4096
+> jucs -x -t --hnf NRev -m nrev4096
 > time julia NRev.jl
 3.85 seconds / 4.58 seconds
-> c2j -x -t --hnf NRev -m nrev4096 --pulltabonly
+> jucs -x -t --hnf NRev -m nrev4096 --pulltabonly
 > time julia NRev.jl
 3.26 seconds / 3.89 seconds
-> c2j -x -t --hnf NRev -m nrev4096 --pulltab
+> jucs -x -t --hnf NRev -m nrev4096 --pulltab
 > time julia NRev.jl
 3.40 seconds / 4.02 seconds
-> c2j -x -t --hnf NRev -m nrev4096 --backtrack
+> jucs -x -t --hnf NRev -m nrev4096 --backtrack
 > time julia NRev.jl
 8.19 seconds / 8.82 seconds
 

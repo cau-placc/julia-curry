@@ -28,7 +28,6 @@ import Julia.Types
 compile :: Options -> String -> IO ()
 compile opts0 mname = do
   icprog <- readICurryProg mname (optVerb opts0 == 0)
-  printStatus opts $ "Compiling Curry program to Julia..."
   let opts     = opts0 { optDemands = collectDemandInfo icprog
                        , optModName = mname }
       mainname = if not (null (optMain opts))
@@ -38,6 +37,7 @@ compile opts0 mname = do
       mbmain   = if not (null mainname) && hasInfo opts mainfunc
                    then Just mainfunc
                    else Nothing
+  printStatus opts $ "Compiling Curry program to Julia..."
   when (optExec opts && isNothing mbmain) $
     error $ "Cannot execute, function '" ++ mainname ++ "' not found!"
   when (isJust mbmain && maybe True (/=0) (arityOfFun mainname icprog)) $

@@ -11,4 +11,4 @@ firstTrue (False : bs) = firstTrue bs
 
 -- DFS does not terminate with a value for this expression:
 main = firstTrue aBoolList
--- BFS yields values, try: c2j -x --bfs --first Strategy.curry
+-- BFS yields values, try: jucs -x --bfs --first Strategy.curry
