@@ -38,37 +38,39 @@ nfList xs = cond (isList xs) xs
 
 goal1 = nfList (rev (natList nat16))
 goal2 = nfList (rev (natList nat256))
-goal3 = isList (rev (natList nat4096))
-goal4 = isList (rev (natList nat16384))
+nrev4096  = isList (rev (natList nat4096))
+nrev16384 = isList (rev (natList nat16384))
 
-main = goal3
+nrev = nrev4096
+
+main = nrev4096
 
 {-
 Results (reported time / time shown by time command for complete execution):
 
 C2J:
-> c2j -x -t --hnf NRev -m goal3
+> c2j -x -t --hnf NRev -m nrev4096
 > time julia NRev.jl
 3.85 seconds / 4.58 seconds
-> c2j -x -t --hnf NRev -m goal3 --pulltabonly
+> c2j -x -t --hnf NRev -m nrev4096 --pulltabonly
 > time julia NRev.jl
 3.26 seconds / 3.89 seconds
-> c2j -x -t --hnf NRev -m goal3 --pulltab
+> c2j -x -t --hnf NRev -m nrev4096 --pulltab
 > time julia NRev.jl
 3.40 seconds / 4.02 seconds
-> c2j -x -t --hnf NRev -m goal3 --backtrack
+> c2j -x -t --hnf NRev -m nrev4096 --backtrack
 > time julia NRev.jl
 8.19 seconds / 8.82 seconds
 
-> ~/pakcs/bin/pakcs :l NRev :set +time :save goal3 :q
+> ~/pakcs/bin/pakcs :l NRev :set +time :save nrev4096 :q
 > time ./NRev
 2.1 second / 3.8 seconds
 
-> ~/pakcs_swi/bin/pakcs :l NRev :set +time :save goal3 :q
+> ~/pakcs_swi/bin/pakcs :l NRev :set +time :save nrev4096 :q
 > time ./NRev
 12.6 second / 20.5 seconds
 
-> ~/kics2/bin/kics2 :l NRev :set +time :save goal3 :q
+> ~/kics2/bin/kics2 :l NRev :set +time :save nrev4096 :q
 > time ./NRev
 -- / 0.32 seconds
 
