@@ -2,7 +2,7 @@
 --- The options of the Curry to Julia compiler.
 ---
 --- @author Michael Hanus
---- @version May 2020
+--- @version July 2020
 ------------------------------------------------------------------------------
 
 module C2J.Options
@@ -98,9 +98,7 @@ processOptions banner argv = do
       opts = foldl (flip id) defaultOptions funopts
       allopterrors = opterrors ++ checkOptions opts
   unless (null allopterrors)
-         (do putStr (unlines (map ("ERROR: " ++) allopterrors))
-             putStrLn "Use --help for usage infos"
-             exitWith 1)
+         (printErrorsAndHelpInfo allopterrors)
   when (optHelp opts) (printUsage >> exitWith 0)
   return (opts, map stripCurrySuffix args)
  where
@@ -111,6 +109,12 @@ processOptions banner argv = do
     = ["do not use `--backtrack' together with `--bfs'\n"]
     | otherwise
     = []
+
+printErrorsAndHelpInfo :: [String] -> IO ()
+printErrorsAndHelpInfo es = do
+  putStr $ unlines $ map ("ERROR: " ++) es
+  putStrLn "Use `--help' for usage infos"
+  exitWith 1
 
 -- Help text
 usageText :: String
@@ -151,7 +155,7 @@ options =
            "use depth-first search strategy (default)"
   , Option "" ["hnf"]
            (NoArg (\opts -> opts { optNormalForm = False }))
-           "compute head normal form (no 'normalForm' wrapper)"
+           "compute head normal form (no `normalForm' wrapper)"
   , Option "" ["noprelude"]
            (NoArg (\opts -> opts { optPrelude = False }))
            "do not include Prelude (e.g., for simple tests)"

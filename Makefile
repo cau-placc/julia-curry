@@ -1,3 +1,6 @@
+# Executable of the Curry Package Manager CPM:
+CPM=cypm
+
 # name of the Curry2Julia compiler executable
 CJC=jucs
 
@@ -7,7 +10,7 @@ export CJOPTIONS=
 # install compiler and system libraries
 .PHONY: install
 install:
-	cypm install
+	$(CPM) install
 	$(MAKE) libs
 
 # translate system libraries
@@ -20,6 +23,6 @@ libs:
 
 .PHONY: clean
 clean:
-	cypm uninstall
-	cypm clean
+	$(CPM) uninstall
+	$(CPM) clean
 	/bin/rm -f lib*/*.jl

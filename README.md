@@ -1,7 +1,8 @@
 curry2julia
 ===========
 
-This package contains the implementation of a compiler
+This [Curry](http://www.curry-lang.org)
+package contains the implementation of a compiler
 which translates Curry programs into [Julia](https://julialang.org/)
 programs. Hence, the compiler assumes that a
 [Julia compiler](https://julialang.org/downloads/) (version 1.4 or higher)
@@ -12,7 +13,11 @@ Installation
 ------------
 
 To install the compiler and pre-compile the system libraries
-(currently: only the `Prelude`), run `make`. This installs
+(currently: only the `Prelude`), you need an installed
+[Curry](http://www.curry-lang.org) system and the executable of the
+[Curry Package Manager](http://www.curry-lang.org/tools/cpm) `cypm`
+in your path (otherwise adapt the `Makefile`).
+Then simply run `make`. This installs
 the compiler as executable `$HOME/.cpm/jucs`.
 
 
@@ -34,34 +39,37 @@ Options
 
 Standard options can be passed as command-line arguments or
 by setting the environment variable `CJOPTIONS`.
-For instance,
+For instance, by setting
 
-    export CJOPTIONS="-x --bfs"
+    > export CJOPTIONS="-x --bfs"
 
-always executes the compiled program with a breadth-first search strategy.
+the compiled programs are always executed with a breadth-first search strategy.
 
-Option `--main`:
-  ~ The main function to be executed.
-    This must be an operation without arguments.
-    If this option is given, the compiler also generates a shell script
-    `MODULE.run` to evaluate the main function by invoking Julia
-    with the correct load path defined.
+#### `--main`
 
-Option `--execute`:
-  ~ Executes the generated Julia program by evaluating
-    the function specified by option `--main` (an operation without arguments).
-    If the option `--main` is not provided, the function `main` is executed.
+The main function to be executed.
+This must be an operation without arguments.
+If this option is given, the compiler also generates a shell script
+`MODULE.run` to evaluate the main function by invoking Julia
+with the correct load path defined.
 
-Option `--time`:
-  ~ Shows the elapsed time used to execute the main function
-    (with the Julia `@time` macro). Since Julia has no explicit
-    compilation phase, the elapsed time also contains the compilation time.
-    In order to get the pure execution time, one provide an integer
-    argument `n` to this option. In this case, the main function
-    will be executed `n` times after its first execution and the
-    average execution time will be printed.
+#### `--execute`
 
-To see a list of all options, execute
+Executes the generated Julia program by evaluating
+the function specified by option `--main` (an operation without arguments).
+If the option `--main` is not provided, the function `main` is executed.
+
+#### `--time`
+
+Shows the elapsed time used to execute the main function
+(with the Julia `@time` macro). Since Julia has no explicit
+compilation phase, the elapsed time also contains the compilation time.
+In order to get the pure execution time, one provide an integer
+argument `n` to this option. In this case, the main function
+will be executed `n` times after its first execution and the
+average execution time will be printed.
+
+To see a **list of all options**, execute
 
     > jucs --help
 
@@ -72,7 +80,7 @@ Stand-alone execution
 In order to execute a compiled program directly, one has to set
 the Julia load path to the appropriate directories:
 
-    export JULIA_LOAD_PATH=<PKGDIR>/lib:<PKGDIR>/include
+    > export JULIA_LOAD_PATH=<PKGDIR>/lib:<PKGDIR>/include
 
 If the option `--main` is provided, the compiler generates a shell script
 to invoke Julia with the correct load path.
@@ -81,11 +89,8 @@ to invoke Julia with the correct load path.
 Package contents
 ----------------
 
-include:
-  ~ Various run-time systems for translated Curry programs
-
-lib...:
-  ~ Translated standard libraries
-
-src:
-  ~ The source code of the compiler
+* `benchmarks`: Benchmarks to evaluate the system
+* `examples`:   Example programs
+* `include`:    Various run-time systems for translated Curry programs
+* `lib...`:     Translated standard libraries
+* `src`:        The source code of the compiler

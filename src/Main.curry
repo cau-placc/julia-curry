@@ -20,7 +20,7 @@ import C2J.PackageConfig ( packagePath )
 banner :: String
 banner = unlines [bannerLine, bannerText, bannerLine]
  where
-   bannerText = "Curry->Julia Compiler (Version of 30/06/20)"
+   bannerText = "Curry->Julia Compiler (Version of 17/07/20)"
    bannerLine = take (length bannerText) (repeat '=')
 
 main :: IO ()
@@ -31,9 +31,9 @@ main = do
     putStrLn $ "Add standard options: " ++ unwords cjoptions
   (opts,progs) <- processOptions banner (cjoptions ++ args)
   case progs of
-    []  -> error "Module name missing"
+    []  -> printErrorsAndHelpInfo ["Module name missing"]
     [p] -> mainProg opts p
-    _   -> error "Too many module names provided"
+    _   -> printErrorsAndHelpInfo ["Too many module names provided"]
 
 mainProg :: Options -> String -> IO ()
 mainProg opts p = do
