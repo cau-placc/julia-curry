@@ -2,7 +2,7 @@
 --- This module contains a simple compiler from FlatCurry to ICurry programs.
 ---
 --- @author Michael Hanus
---- @version June 2020
+--- @version July 2020
 ------------------------------------------------------------------------------
 
 module Main where
@@ -20,7 +20,7 @@ import C2J.PackageConfig ( packagePath )
 banner :: String
 banner = unlines [bannerLine, bannerText, bannerLine]
  where
-   bannerText = "Curry->Julia Compiler (Version of 17/07/20)"
+   bannerText = "Curry->Julia Compiler (Version of 20/07/20)"
    bannerLine = take (length bannerText) (repeat '=')
 
 main :: IO ()
@@ -38,7 +38,7 @@ main = do
 mainProg :: Options -> String -> IO ()
 mainProg opts p = do
   compile opts p
-  when (not (null (optMain opts))) $ genExecScript opts
+  when (optStandalone opts) $ genExecScript opts
   when (optExec opts) $ do
     exjulia <- fileInPath "julia"
     if exjulia
@@ -63,7 +63,7 @@ mainProg opts p = do
 
   -- Generate a simple shell script to execute the target program
   genExecScript opts = do
-    let scriptname = p ++ ".run"
+    let scriptname = p ++ ".sh"
     writeFile scriptname $ unlines
       [ "#!/bin/sh", setLoadPath opts, "julia " ++ p ++ ".jl" ]
     system $ "chmod 755 " ++ scriptname

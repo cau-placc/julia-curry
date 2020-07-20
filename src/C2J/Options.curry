@@ -37,6 +37,7 @@ data Options = Options
   , optTime        :: Int    -- show execution time (of n runs)?
   , optNormalForm  :: Bool   -- compute normal form of main operation?
   , optPrelude     :: Bool   -- include (big!) Prelude from lib dir?
+  , optStandalone  :: Bool   -- generate shell script for standalone execution?
   , optMain        :: String -- name of main function
   -- internal options
   , optModName     :: String -- name of the curret module
@@ -46,7 +47,8 @@ data Options = Options
 
 defaultOptions :: Options
 defaultOptions =
-  Options 1 False False PullTabMemo False False False (-1) True True "" "" [] ""
+  Options 1 False False PullTabMemo False False False (-1) True True False ""
+          "" [] ""
 
 -- Extract demand information from an ICurry program.
 collectDemandInfo :: IProg -> [((String,String),[Int])]
@@ -135,6 +137,21 @@ options =
   , Option "v" ["verbosity"]
             (OptArg (maybe (checkVerb 2) (safeReadNat checkVerb)) "<n>")
             "verbosity level:\n0: quiet (same as `-q')\n1: show status messages (default)\n2: show generated program (same as `-v')\n3: show all details"
+  , Option "x" ["execute"]
+           (NoArg (\opts -> opts { optExec = True }))
+           "execute main function of compiled Julia program"
+  , Option "m" ["main"]
+           (ReqArg (\s opts -> opts { optMain = s }) "<f>")
+           "name of main function to be executed"
+  , Option "f" ["first"]
+           (NoArg (\opts -> opts { optFirst = True }))
+           "stop after computing a first value"
+  , Option "i" ["interactive"]
+           (NoArg (\opts -> opts { optInteractive = True }))
+           "interactive execution (ask for next result)"
+  , Option "t" ["time"]
+            (OptArg (maybe (setTime 0) (safeReadNat setTime)) "<n>")
+            "show execution time\n(n>0: average of n runs after one initial run)"
   , Option "" ["pulltabmemo"]
            (NoArg (\opts -> opts { optRTS = PullTabMemo }))
            "use RTS for memoized pull-tabbing (default)"
@@ -159,21 +176,9 @@ options =
   , Option "" ["noprelude"]
            (NoArg (\opts -> opts { optPrelude = False }))
            "do not include Prelude (e.g., for simple tests)"
-  , Option "m" ["main"]
-           (ReqArg (\s opts -> opts { optMain = s }) "<f>")
-           "name of main function to be executed"
-  , Option "x" ["execute"]
-           (NoArg (\opts -> opts { optExec = True }))
-           "execute main function of compiled Julia program"
-  , Option "f" ["first"]
-           (NoArg (\opts -> opts { optFirst = True }))
-           "stop after computing a first value"
-  , Option "i" ["interactive"]
-           (NoArg (\opts -> opts { optInteractive = True }))
-           "interactive execution (ask for next result)"
-  , Option "t" ["time"]
-            (OptArg (maybe (setTime 0) (safeReadNat setTime)) "<n>")
-            "show execution time\n(n>0: average of n runs after one initial run)"
+  , Option "" ["standalone"]
+           (NoArg (\opts -> opts { optStandalone = True }))
+           "generate shell script for standalone execution"
   ]
  where
   safeReadNat opttrans s opts =
