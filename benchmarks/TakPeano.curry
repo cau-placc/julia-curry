@@ -30,14 +30,19 @@ tak x y z = ifThenElse (leq x y)
 
 two :: Nat
 two = S (S O)
+
 four :: Nat
 four = double two
+
 n8 :: Nat
 n8 = double four
+
 n16 :: Nat
 n16 = double n8
+
 n24 :: Nat
 n24 = add n8 n16
+
 n27 :: Nat
 n27 = add (S two) n24
 
@@ -49,6 +54,7 @@ tak_27_16_8 :: Nat
 tak_27_16_8 = tak n27 n16 n8
 --goal2 = tak 33 17 8
 
+takPeano :: Nat
 takPeano = tak_24_16_8
 
 main :: Nat

@@ -12,28 +12,45 @@ guard MyTrue x = x
 
 data Nat = O | S Nat
 
+dec :: Nat -> Nat
 dec (S x) = x
 
+leq :: Nat -> Nat -> MyBool
 leq O     _     = MyTrue
 leq (S _) O     = MyFalse
 leq (S x) (S y) = leq x y
 
+isNat :: Nat -> MyBool
 isNat O = MyTrue
 isNat (S x) = isNat x
 
+add :: Nat -> Nat -> Nat
 add O n = n
 add (S x) y = S (add x y)
 
+double :: Nat -> Nat
 double x = add x x
 
+mult :: Nat -> Nat -> Nat
 mult O _ = O
 mult (S x) y = add y (mult x y)
 
+two :: Nat
 two = S (S O)
+
+three :: Nat
 three = S two
+
+four :: Nat
 four = double two
+
+nat13 :: Nat
 nat13 = S (mult three four)
+
+nat14 :: Nat
 nat14 = add two (mult three four)
+
+nat15 :: Nat
 nat15 = S nat14
 
 ----------------------------------------------------------------
@@ -63,18 +80,25 @@ sorted (Cons x (Cons y ys)) = guard (leq x y) (Cons x (sorted (Cons y ys)))
 psort :: List Nat  -> List Nat
 psort xs = sorted (perm xs)
 
+descList :: Nat -> Nat -> List Nat
 descList up low =
   ifThenElse (leq low up) (Cons up (descList (dec up) low)) Nil
 
 -- psort (2:[n,n-1 .. 3]++[1])
+sortDescList :: Nat -> List Nat
 sortDescList n = psort (Cons two (app (descList n three) (Cons (S O) Nil)))
 
+permsort :: List Nat
 permsort = sortDescList nat13
 
+psort14 :: List Nat
 psort14 = sortDescList nat14
 
+psort14_conc :: List Nat
 psort14_conc = let x = psort14 in app (app x x) x
 
+psort14_length :: Nat
 psort14_length = let x = len psort14 in add (add x x) x
 
-main = psort14
+main :: List Nat
+main = permsort
