@@ -70,19 +70,19 @@ function rew1__26(root :: Node)
 end
 
 ##############################################################################
-# Implementation of Prelude.=:=
+# Implementation of Prelude.constrEq
 
-function eval__3D_3A_3D(root :: Node)
-  root.fcode = eval1__3D_3A_3D
+function eval_constrEq(root :: Node)
+  root.fcode = eval1_constrEq
   root.value = 1
 end
 
-function eval1__3D_3A_3D(root :: Node)
-  root.fcode = rew__3D_3A_3D
+function eval1_constrEq(root :: Node)
+  root.fcode = rew_constrEq
   root.value = 2
 end
 
-function rew__3D_3A_3D(root :: Node)
+function rew_constrEq(root :: Node)
   x1 = root.args[1]
   x2 = root.args[2]
   if x1.tag == 4 && x2.tag == 4 # free variables
@@ -120,18 +120,18 @@ function rew__3D_3A_3D(root :: Node)
     elseif isempty(x1.args)
       setRHS(root, 11, 0, nothing, [], "True")
     else
-      unifexp = Node(0, 0, root.otsk, nothing, eval__3D_3A_3D,
-                     [x1.args[1], x2.args[1]],"=:=")
+      unifexp = Node(0, 0, root.otsk, nothing, eval_constrEq,
+                     [x1.args[1], x2.args[1]],"constrEq")
       for i in 2:length(x1.args)
-        unifarg = Node(0, 0, root.otsk, nothing, eval__3D_3A_3D,
-                       [x1.args[i], x2.args[i]],"=:=")
+        unifarg = Node(0, 0, root.otsk, nothing, eval_constrEq,
+                       [x1.args[i], x2.args[i]],"constrEq")
         unifexp = Node(0, 1, root.otsk, nothing, rew__26,
                        [unifexp, unifarg],"&")
       end
       setForwardNode(root,unifexp)
     end
   else
-    error("Prelude.=:= with partial application!")
+    error("Prelude.constrEq with partial application!")
   end
 end
 
@@ -154,14 +154,14 @@ function bindVariable2Cons(root :: Node, var :: Node, exp :: Node)
 end
 
 ##############################################################################
-# Implementation of Prelude.=:<= (without non-linearity checking!)
+# Implementation of Prelude.nonstrictEq (without non-linearity checking!)
 
-function eval__3D_3A_3C_3D(root :: Node)
-  root.fcode = rew__3D_3A_3C_3D
+function eval_nonstrictEq(root :: Node)
+  root.fcode = rew_nonstrictEq
   root.value = 1 # evaluate first (functional pattern) argument
 end
 
-function rew__3D_3A_3C_3D(root :: Node)
+function rew_nonstrictEq(root :: Node)
   x1 = root.args[1]
   x2 = root.args[2]
   if x1.tag == 4 # functional pattern is free variable
@@ -203,18 +203,18 @@ function rew_fpunif(root :: Node)
     elseif isempty(x1.args)
       setRHS(root, 11, 0, nothing, [], "True")
     else
-      unifexp = Node(0, 0, root.otsk, nothing, eval__3D_3A_3C_3D,
-                     [x1.args[1], x2.args[1]],"=:<=")
+      unifexp = Node(0, 0, root.otsk, nothing, eval_nonstrictEq,
+                     [x1.args[1], x2.args[1]],"nonstrictEq")
       for i in 2:length(x1.args)
-        unifarg = Node(0, 0, root.otsk, nothing, eval__3D_3A_3C_3D,
-                       [x1.args[i], x2.args[i]],"=:<=")
+        unifarg = Node(0, 0, root.otsk, nothing, eval_nonstrictEq,
+                       [x1.args[i], x2.args[i]],"nonstrictEq")
         unifexp = Node(0, 1, root.otsk, nothing, rew__26,
                        [unifexp, unifarg],"&")
       end
       setForwardNode(root,unifexp)
     end
   else
-    error("Prelude.=:<= with partial application!")
+    error("Prelude.nonstrictEq with partial application!")
   end
 end
 
@@ -303,35 +303,35 @@ end
 # Integer operations: note that arguments are aways inverted!
 
 # Addition on integers
-function eval_prim_5FInt_5Fplus(root :: Node)
+function eval_prim_5FplusInt(root :: Node)
   x2 = root.args[1]
   x1 = root.args[2]
   setConst(root, 5, x1.value + x2.value)
 end
 
 # Subtraction on integers
-function eval_prim_5FInt_5Fminus(root :: Node)
+function eval_prim_5FminusInt(root :: Node)
   x2 = root.args[1]
   x1 = root.args[2]
   setConst(root, 5, x1.value - x2.value)
 end
 
 # Multiplication on integers
-function eval_prim_5FInt_5Ftimes(root :: Node)
+function eval_prim_5FtimesInt(root :: Node)
   x2 = root.args[1]
   x1 = root.args[2]
   setConst(root, 5, x1.value * x2.value)
 end
 
 # mod operation
-function eval_prim_5FInt_5Fmod(root :: Node)
+function eval_prim_5FmodInt(root :: Node)
   x2 = root.args[1]
   x1 = root.args[2]
   setConst(root, 5, mod(x1.value, x2.value))
 end
 
 # div operation
-function eval_prim_5FInt_5Fdiv(root :: Node)
+function eval_prim_5FdivInt(root :: Node)
   x2 = root.args[1]
   x1 = root.args[2]
   setConst(root, 5, div(x1.value, x2.value))
@@ -362,8 +362,8 @@ end
 ##############################################################################
 # Float operations
 
-# prim_i2f
-function eval_prim_5Fi2f(root :: Node)
+# prim_intToFloat
+function eval_prim_5FintToFloat(root :: Node)
   x1 = root.args[1]
   setRHS(root, 6, 0, nothing, [], Float64(root.value))
 end

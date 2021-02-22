@@ -2,18 +2,17 @@
 --- Support for reading ICurry programs.
 ---
 --- @author Michael Hanus
---- @version May 2020
+--- @version February 2021
 ------------------------------------------------------------------------------
 
 module ICurry.Read
  where
 
-import Directory        ( doesFileExist, getModificationTime )
-
 import ICurry.Compiler  ( icCompile, defaultICOptions, optVarDecls, optVerb )
 import ICurry.Files     ( iCurryFilePath, readICurryFile, writeICurryFile )
 import ICurry.Types
 import System.CurryPath ( lookupModuleSourceInLoadPath )
+import System.Directory ( doesFileExist, getModificationTime )
 
 ------------------------------------------------------------------------------
 -- Reads an ICurry program if it is newer than the Curry source file,

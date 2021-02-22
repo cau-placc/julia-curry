@@ -2,19 +2,21 @@
 --- This module contains a simple compiler from FlatCurry to ICurry programs.
 ---
 --- @author Michael Hanus
---- @version July 2020
+--- @version February 2021
 ------------------------------------------------------------------------------
 
-module Main where
+module C2J.Main where
 
-import FilePath          ( (</>), searchPathSeparator )
-import System            ( exitWith, getArgs, getEnviron, system )
+import Control.Monad      ( when, unless )
+import System.Environment ( getArgs, getEnv )
 
-import System.Path       ( fileInPath )
+import System.FilePath    ( (</>), searchPathSeparator )
+import System.Path        ( fileInPath )
+import System.Process     ( exitWith, system )
 
-import C2J.Compiler      ( compile )
+import C2J.Compiler       ( compile )
 import C2J.Options
-import C2J.PackageConfig ( packagePath )
+import C2J.PackageConfig  ( packagePath )
 
 ------------------------------------------------------------------------------
 banner :: String
@@ -26,7 +28,7 @@ banner = unlines [bannerLine, bannerText, bannerLine]
 main :: IO ()
 main = do
   args <- getArgs
-  cjoptions <- getEnviron "CJOPTIONS" >>= return . words
+  cjoptions <- getEnv "CJOPTIONS" >>= return . words
   unless (null cjoptions) $
     putStrLn $ "Add standard options: " ++ unwords cjoptions
   (opts,progs) <- processOptions banner (cjoptions ++ args)
@@ -46,7 +48,7 @@ mainProg opts p = do
         let cmd = setLoadPath opts ++ " && julia " ++ p ++ ".jl"
         printDetails opts $ "Executing command: " ++ cmd
         system cmd
-        done
+        return ()
       else do
         putStrLn "Command 'julia' not found in PATH."
         putStrLn "Please install 'julia' to execute target program."

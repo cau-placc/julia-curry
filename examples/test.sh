@@ -20,6 +20,7 @@ fi
 # Clean old stuff:
 clean() {
   cleancurry -r
+  /bin/rm -rf .curry
   for P in $PROGRAMS ; do
     /bin/rm -f $P.jl
   done

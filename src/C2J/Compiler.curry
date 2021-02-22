@@ -2,25 +2,27 @@
 --- This module contains a simple compiler from ICurry to Julia programs.
 ---
 --- @author Michael Hanus
---- @version July 2020
+--- @version February 2021
 ------------------------------------------------------------------------------
 
 module C2J.Compiler
  where
 
-import Char            ( isAlphaNum )
-import Directory       ( doesFileExist )
-import FilePath        ( (</>) )
-import Maybe           ( isJust, isNothing )
-import Text.Pretty     ( pPrint )
+import Control.Monad    ( when )
+import Data.Char        ( isAlphaNum )
+import Data.Maybe       ( isJust, isNothing )
+
+import System.Directory ( doesFileExist )
+import System.FilePath  ( (</>) )
+import Text.Pretty      ( pPrint )
 
 import ICurry.Types
 
 import C2J.Options
-import C2J.PackageConfig ( packagePath )
-import ICurry.Read       ( readICurryProg )
-import Julia.Pretty      ( ppModule )
-import Julia.Types
+import C2J.PackageConfig     ( packagePath )
+import ICurry.Read           ( readICurryProg )
+import Language.Julia.Pretty ( ppModule )
+import Language.Julia.Types
 
 ------------------------------------------------------------------------------
 

@@ -2,19 +2,19 @@
 --- The options of the Curry to Julia compiler.
 ---
 --- @author Michael Hanus
---- @version July 2020
+--- @version February 2021
 ------------------------------------------------------------------------------
 
 module C2J.Options
  where
 
-import FilePath          ( takeFileName )
-import GetOpt
-import ReadNumeric       ( readNat )
-import System            ( exitWith )
+import Control.Monad     ( when, unless )
+import System.Console.GetOpt
 
 import ICurry.Types
 import System.CurryPath  ( stripCurrySuffix )
+import System.FilePath   ( takeFileName )
+import System.Process    ( exitWith )
 
 import C2J.PackageConfig ( packageExecutable )
 
@@ -181,11 +181,9 @@ options =
            "generate shell script for standalone execution"
   ]
  where
-  safeReadNat opttrans s opts =
-   let numError = error "Illegal number argument (try `-h' for help)"
-   in maybe numError
-            (\ (n,rs) -> if null rs then opttrans n opts else numError)
-            (readNat s)
+  safeReadNat opttrans s opts = case reads s of
+    [(n,"")] -> opttrans n opts
+    _        -> error "Illegal number argument (try `-h' for help)"
 
   checkVerb n opts = if n>=0 && n<4
                      then opts { optVerb = n }
