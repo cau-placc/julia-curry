@@ -12,7 +12,7 @@ import Control.Monad    ( when )
 import Data.Char        ( isAlphaNum )
 import Data.Maybe       ( isJust, isNothing )
 
-import System.Directory ( doesFileExist )
+import System.Directory ( doesFileExist, getModificationTime )
 import System.FilePath  ( (</>) )
 import Text.Pretty      ( pPrint )
 
@@ -30,6 +30,7 @@ import Language.Julia.Types
 compile :: Options -> String -> IO ()
 compile opts0 mname = do
   icprog <- readICurryProg mname (optVerb opts0 == 0)
+  compileImports opts0 { optMain = "", optStandalone = False } icprog
   let opts     = opts0 { optDemands = collectDemandInfo icprog
                        , optModName = mname }
       mainname = if not (null (optMain opts))
@@ -39,7 +40,7 @@ compile opts0 mname = do
       mbmain   = if not (null mainname) && hasInfo opts mainfunc
                    then Just mainfunc
                    else Nothing
-  printStatus opts $ "Compiling Curry program to Julia..."
+  printStatus opts $ "Compiling Curry program '" ++ mname ++ "' to Julia..."
   when (optExec opts && isNothing mbmain) $
     error $ "Cannot execute, function '" ++ mainname ++ "' not found!"
   when (isJust mbmain && maybe True (/=0) (arityOfFun mainname icprog)) $
@@ -52,6 +53,20 @@ compile opts0 mname = do
   printIntermediate opts $ "COMPILED PROGRAM:\n" ++ jprog
   writeFile jprogname jprog
   printStatus opts $ "Compiled Curry program written to: " ++ jprogname
+
+-- Compile also imported module (only if they are local, should be extended...)
+compileImports :: Options -> IProg -> IO ()
+compileImports opts (IProg _ impmods _ _) = mapM_ compileImport impmods
+ where
+  compileImport m = do
+    excurry <- doesFileExist (m ++ ".curry")
+    exjulia <- doesFileExist (m ++ ".jl")
+    when excurry $
+      if not exjulia
+        then compile opts m
+        else do currydate <- getModificationTime (m ++ ".curry")
+                juliadate <- getModificationTime (m ++ ".jl")
+                when (currydate > juliadate) $ compile opts m
 
 c2j :: Options -> Maybe String -> IProg -> Maybe IQName -> JLModule
 c2j opts mbinclude (IProg mn impmods _ fdecls) mbmain = JLModule

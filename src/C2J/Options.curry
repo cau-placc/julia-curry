@@ -16,7 +16,7 @@ import System.CurryPath  ( stripCurrySuffix )
 import System.FilePath   ( takeFileName )
 import System.Process    ( exitWith )
 
-import C2J.PackageConfig ( packageExecutable )
+import C2J.PackageConfig ( packageExecutables )
 
 ------------------------------------------------------------------------------
 --- The various run-time systems of the compiler.
@@ -85,11 +85,14 @@ hasInfo opts (mn,fn,_) =
 printStatus :: Options -> String -> IO ()
 printStatus opts s = when (optVerb opts > 0) $ putStrLn s
 
+printVerbose :: Options -> String -> IO ()
+printVerbose opts s = when (optVerb opts > 1) $ putStrLn s
+
 printIntermediate :: Options -> String -> IO ()
-printIntermediate opts s = when (optVerb opts > 1) $ putStrLn s
+printIntermediate opts s = when (optVerb opts > 2) $ putStrLn s
 
 printDetails :: Options -> String -> IO ()
-printDetails opts s = when (optVerb opts > 2) $ putStrLn s
+printDetails opts s = when (optVerb opts > 3) $ putStrLn s
 
 ------------------------------------------------------------------------------
 --- Process the actual command line argument and return the options
@@ -123,7 +126,7 @@ usageText :: String
 usageText =
   usageInfo ("Usage: " ++ prog ++ " [options] <module name>\n") options
  where
-  prog = takeFileName packageExecutable
+  prog = takeFileName (head packageExecutables)
 
 -- Definition of actual command line options.
 options :: [OptDescr (Options -> Options)]
@@ -136,7 +139,7 @@ options =
            "run quietly (no output, only exit code)"
   , Option "v" ["verbosity"]
             (OptArg (maybe (checkVerb 2) (safeReadNat checkVerb)) "<n>")
-            "verbosity level:\n0: quiet (same as `-q')\n1: show status messages (default)\n2: show generated program (same as `-v')\n3: show all details"
+            "verbosity level:\n0: quiet (same as `-q')\n1: show status messages (default)\n2: show generated program (same as `-v')\n3: show intermediate infos\n4: show all details"
   , Option "x" ["execute"]
            (NoArg (\opts -> opts { optExec = True }))
            "execute main function of compiled Julia program"
@@ -185,7 +188,7 @@ options =
     [(n,"")] -> opttrans n opts
     _        -> error "Illegal number argument (try `-h' for help)"
 
-  checkVerb n opts = if n>=0 && n<4
+  checkVerb n opts = if n>=0 && n<=4
                      then opts { optVerb = n }
                      else error "Illegal verbosity level (try `-h' for help)"
 

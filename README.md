@@ -8,6 +8,11 @@ programs. Hence, the compiler assumes that a
 [Julia compiler](https://julialang.org/downloads/) (version 1.4 or higher)
 is available via the command `julia` in the load path.
 
+The compiler is a prototype and, thus, quite simple.
+It supports only programs which imports the prelude
+and other Curry modules stored in the same directory
+as the main module.
+
 
 Installation
 ------------
@@ -24,10 +29,12 @@ Then simply run
 This installs the compiler as executable `$HOME/.cpm/bin/jucs`.
 Therefore, you should include the directory `$HOME/.cpm/bin`
 into your path for convenient usage of the compiler.
+Furthermore, a simple interactive environment for the compiler
+(a basic REPL) is generated as executable `$HOME/.cpm/bin/juics`.
 
 
-Usage
------
+Using the Compiler
+------------------
 
 To compile a Curry module `Mod` into a Julia program, run
 
@@ -93,7 +100,7 @@ average execution time will be printed.
 #### `--standalone`
 
 With this option, the compiler also generates a shell script
-`<Module>.sh` which invokes the compiled Julia program
+`<Module>` which invokes the compiled Julia program
 with the correct load path defined (see also below).
 
 
@@ -121,6 +128,12 @@ the Julia load path to the appropriate directories
 If the option `--standalone` is provided,
 the compiler generates a shell script
 to invoke Julia with the correct load path.
+
+
+Using the interactive environment
+---------------------------------
+
+Start `juics` and look into the interactive command `:help`.
 
 
 Package contents

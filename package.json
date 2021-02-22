@@ -8,6 +8,7 @@
     "licenseFile": "LICENSE",
     "dependencies": {
         "base"      : ">= 3.0.0, < 4.0.0",
+        "curry-repl": ">=0.0.1",
         "currypath" : ">= 3.0.0, < 4.0.0",
         "directory" : ">= 3.0.0, < 4.0.0",
         "execpath"  : ">= 3.0.0, < 4.0.0",
@@ -19,10 +20,15 @@
     },
     "exportedModules": [ "C2J.Compiler", "C2J.Options" ],
     "configModule": "C2J.PackageConfig",
-    "executable": {
-        "name"   : "jucs",
-        "main"   : "C2J.Main"
-    },
+    "executables": [ {
+                       "name"   : "jucs",
+                       "main"   : "C2J.Main"
+                     },
+                     {
+                       "name"   : "juics",
+                       "main"   : "JucsREPL"
+                     }
+                   ],
     "testsuite": {
         "src-dir": "examples",
         "script" : "test.sh"

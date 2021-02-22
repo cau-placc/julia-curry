@@ -46,7 +46,7 @@ mainProg opts p = do
     if exjulia
       then do
         let cmd = setLoadPath opts ++ " && julia " ++ p ++ ".jl"
-        printDetails opts $ "Executing command: " ++ cmd
+        printVerbose opts $ "Executing command: " ++ cmd
         system cmd
         return ()
       else do
@@ -55,6 +55,7 @@ mainProg opts p = do
         exitWith 1
  where
   setLoadPath opts = "export JULIA_LOAD_PATH=" ++
+                     "." ++ [searchPathSeparator] ++
                      packagePath </> "include" ++ [searchPathSeparator] ++
                      packagePath </> libdir (optRTS opts)
    where
@@ -65,7 +66,7 @@ mainProg opts p = do
 
   -- Generate a simple shell script to execute the target program
   genExecScript opts = do
-    let scriptname = p ++ ".sh"
+    let scriptname = p
     writeFile scriptname $ unlines
       [ "#!/bin/sh", setLoadPath opts, "julia " ++ p ++ ".jl" ]
     system $ "chmod 755 " ++ scriptname
