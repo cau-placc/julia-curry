@@ -62,7 +62,7 @@ testall() {
 
 
 # Tests with all run-time systems but without the Prelude:
-PROGRAMS="Colormap Data FreeBool Half InfList NonDet Perm PermSort Rev Xor Zip"
+PROGRAMS="Colormap Data FreeBool Half InfList NonDet PullTabOwnerTask Perm PermSort Rev Xor Zip"
 CJOPTS="-x --noprelude"
 testall TESTNOPRELUDE.txt
 CJOPTS="-x --noprelude --pulltabonly"
@@ -75,8 +75,6 @@ testall TESTNOPRELUDE.txt
 # Tests with the Prelude:
 PROGRAMS="Fac CaseLiteral ColormapFree Higher Last"
 CJOPTS="-x"
-testall TESTPRELUDE.txt
-CJOPTS="-x --backtrack"
 testall TESTPRELUDE.txt
 
 # Tests with functional patterns:

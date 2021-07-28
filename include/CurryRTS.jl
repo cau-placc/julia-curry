@@ -198,8 +198,10 @@ function hnfNode(task :: Task, tskcnt :: Int64) :: Node
         args1[fn.value] = cn.args[1]
         args2 = copy(fn.args)
         args2[fn.value] = cn.args[2]
-        c1 = Node(0,fn.value,tskcnt+1,nothing,fn.fcode,args1,fn.symbol)
-        c2 = Node(0,fn.value,tskcnt+2,nothing,fn.fcode,args2,fn.symbol)
+        #c1 = Node(0,fn.value,tskcnt+1,nothing,fn.fcode,args1,fn.symbol)
+        #c2 = Node(0,fn.value,tskcnt+2,nothing,fn.fcode,args2,fn.symbol)
+        c1 = Node(0,fn.value,fn.otsk,nothing,fn.fcode,args1,fn.symbol)
+        c2 = Node(0,fn.value,fn.otsk,nothing,fn.fcode,args2,fn.symbol)
         fn.tag    = 2
         fn.value  = cn.value
         fn.taskns = nothing

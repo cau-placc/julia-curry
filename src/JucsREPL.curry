@@ -3,48 +3,56 @@
 --- based on the universal REPL for Curry compilers.
 --- 
 --- @author  Michael Hanus
---- @version February 2021
+--- @version July 2021
 ------------------------------------------------------------------------------
 
 module JucsREPL where
 
 import Curry.Compiler.Distribution ( installDir )
-import Data.List         ( intercalate )
-import System.CurryPath ( inCurrySubdir, modNameToPath, sysLibPath )
+import Data.List         ( intercalate, splitOn )
+
+import System.CurryPath  ( inCurrySubdir, modNameToPath, sysLibPath )
+import System.FilePath   ( (</>) )
 
 import REPL.Compiler
 import REPL.Main         ( mainREPL )
 
-import C2J.PackageConfig ( packageExecutables, packagePath, packageVersion )
+import C2J.PackageConfig ( getPackageExecutables, getPackagePath
+                         , packageVersion )
 
 main :: IO ()
-main = mainREPL jucs
+main = do
+  jucshome <- getJucsHome
+  cmpexec  <- getPackageExecutables >>= return . head
+  mainREPL (jucs jucshome cmpexec)
 
 --- Specification of the Curry->Go compiler:
 
-jucs :: CCDescription
-jucs = CCDescription
-  "jucs"                               -- the compiler name
-  jucsBanner                           -- the banner
-  jucsHome                             -- home directory of the compiler
-  "info@curry-lang.org"                -- contact email
-  (head packageExecutables)            -- compiler executable
-  (installDir ++ "/lib")               -- base library path
-  False                                -- parser should read untyped FlatCurry
-  True                                 -- use CURRYPATH variable
-  (\s -> "-v" ++ s)                    -- option to pass verbosity
-  (\_ -> "")                           -- option to pass parser options (ignored)
-  (\s -> s)                            -- option to compile only
-  (\s -> "--standalone -m main " ++ s) -- option to create an executable
-  cleanCmd                             -- command to clean module
+jucs :: String -> String -> CCDescription
+jucs jucshome cmpexec = CCDescription
+  "jucs"                                -- the compiler name
+  (compilerMajorVersion, compilerMinorVersion, compilerRevisionVersion)
+  jucsBanner                            -- the banner
+  jucshome                              -- home directory of the compiler
+  "info@curry-lang.org"                 -- contact email
+  (installDir ++ "/bin/pakcs-frontend") -- executable of the Curry front end
+  cmpexec                               -- compiler executable
+  (installDir </> "lib")                -- base library path
+  (Just False)                          -- load command reads untyped FlatCurry
+  True                                  -- use CURRYPATH variable
+  (\s -> "-v" ++ s)                     -- option to pass verbosity
+  (\_ -> "")                            -- option to pass parser options
+  (\s -> s)                             -- option to compile only
+  (\s -> "--standalone -m main " ++ s)  -- option to create an executable
+  cleanCmd                              -- command to clean module
   [stratOpt, intOpt, firstOpt]
  where
   cleanCmd m =
     "/bin/rm -f " ++ inCurrySubdir m ++ ".* " ++ modNameToPath m ++ ".curry "
                   ++ modNameToPath m ++ ".jl"
 
-jucsHome :: String
-jucsHome = packagePath
+getJucsHome :: IO String
+getJucsHome = getPackagePath
 
 jucsBanner :: String
 jucsBanner = unlines [bannerLine, bannerText, bannerLine]
@@ -76,5 +84,23 @@ firstOpt = CCOption
   [ ("-first","")
   , ("+first","--first")
   ]
+
+--- The major version of the compiler.
+compilerMajorVersion :: Int
+compilerMajorVersion = case reads (head (splitOn "." packageVersion)) of
+  [(n,"")] -> n
+  _        -> 0
+
+--- The major version of the compiler.
+compilerMinorVersion :: Int
+compilerMinorVersion = case reads ((splitOn "." packageVersion) !! 1) of
+  [(n,"")] -> n
+  _        -> 0
+
+--- The major version of the compiler.
+compilerRevisionVersion :: Int
+compilerRevisionVersion = case reads ((splitOn "." packageVersion) !! 2) of
+  [(n,_)] -> n -- maybe there is a suffix with a pre-release identifier
+  _       -> 0
 
 ------------------------------------------------------------------------------
